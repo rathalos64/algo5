@@ -1,0 +1,136 @@
+\section{Maximum Likelihood}
+\subsection*{a.) Erklären Sie in eigenen Worten sowie unter Verwendung von mathematischen Definitionen die grundlegenden Aspekte der Maximum Likelihood Methode zur Schätzung von \newline Parametern}
+
+Wie zuvor in der Entscheidungstheorie von Bayes beschrieben, kann man einen optimalen Klassifizierer erstellen, dessen Fehlerrate minimal ist unter
+Verwendung von der \textit{a priori probability}: \textit{P($\omega$)} und der \textit{likelihood} einer Klasse $\omega$ zu einem Feature \textit{x}, dargestellt durch die \textit{class-condition probability density} function: \textit{p(x$\mid$$\omega$)}.
+
+Leider haben wir in der Realität nicht immer alles Informationen zur Verfügung. Meist stehen uns nur eine limitierte
+Anzahl an Trainingsdaten bestehend aus Samples zur Verfügung, aus denen wir die Information annährend müssen, um unseren Klassifizierer zu bauen.
+Unter Betrachtung von Überwachtem Lernen, wo die Daten sich durch Klassen markiert und bezeichnet sind, scheint die Erhebung der \textit{a priori probability} kein sonderlich
+großes Problem darzustellen (meist nimmt man die prozentuelle Verteilung der jeweiligen Klasse $\omega$ über alle Datensamples). Schwieriges gestaltet sich die \textbf{Schätzung} der \textit{class-condition probability density} function. Besondern dann, wenn die Anzahl der
+Samples knapp ist, während der Featurevektor zu groß ist (n $<<$ d; n = Anzahl der Sampels, d = Anzahl der Features). 
+
+Eine Abhilfe kann man sich schaffen, in dem man nicht die Funktion \textit{p(x$\mid$$\omega$)}, sondern deren Parameter schätzt. 
+Wenn man sich \textit{p(x$\mid$$\omega$)} als normalverteilte Funktion \\
+\textit{p(x$\mid$$\omega$)} $\sim$ \textit{N($\mu$, $\sigma$)} vorstellt, braucht man nur mehr die Parameter \textit{$\mu$} und \textit{$\sigma$} schätzen.
+Die Parameter \textit{$\mu$} und \textit{$\sigma$} können gesammelt als Parametervektor $\theta$ := [\textit{$\mu$}, \textit{$\sigma$}] bezeichnet werden. 
+So lässt sich das Problem der Parameterschätzung mathematisch definieren als: 
+Für alle erhobenen Samples, finde einen geeigneten Parametervektor $\theta$ für die Wahrscheinlichkeitsdichte \textit{p(x$\mid$$\omega$, $\theta$)} oder kurz
+\textit{p(x$\mid$$\theta$)}, welcher bestmöglichst (most likely) zu unseren Samples und rückschließend zu unseren Realdaten passt bzw. dessen Verteilung am Besten darstellt. 
+Hier bezeichnet \textit{x} ein Sample des Features \textit{x}. Das heißt man geht alle möglichen Erklärungsmodelle / Verteilungen durch, schätzt den jeweiligen Parametervektor $\theta$ 
+(z.b.: für X $\sim$ N = [$\mu$, $\sigma$]; für X $\sim$ Poisson = [$\lambda$]) und sucht sich den Paramatervektor zur der Verteilung heraus, die zu unseren Daten am Besten passt. 
+Man sucht mit \textit{p(x$\mid$$\theta$)} die Wahrscheinlichkeit für die Daten, gegeben das Modell, dargestellt durch den Parametervektor $\theta$.
+Nachdem meist mehrere Samples unabhängig erhoben werden, die jeweils ihrer eigene 
+Verteilung darstellen, nutzen wir diese um für das gesamte Sammlung an Samples \textit{$\theta$} zu schätzen. Die resultierende \textit{likelihood} Funktion lässt darstellen als:
+\begin{align}
+	L(\theta) &= \prod_{k=1}^N p(x_k\mid\theta)
+\end{align}
+Hier bezeichnet \textit{L($\theta$)} die \textit{likelihood} von $\theta$ unter Berücksichtigung (oder in Respekt) zu allen Samples.
+Zur Maximierung des \textit{likelihood} schreibt man jenes $\hat\theta$ als das \textit{maximum likelihood estimate} von $\theta$, welches \textit{L($\theta$)} maximiert.
+Das ist auch genau jener Parameterverktor des jeweiligen Erklärungsmodells / Verteilung, welcher - wie im oberen Absatz beschrieben - am Besten zu unseren Daten passt. 
+
+Nachdem Wahrscheinlichkeiten immer einen Kommawert unter Eins darstellen, führt die Multiplikation von vielen Wahrscheinlichkeiten zu sehr geringen Kommawerten.
+Zum Beispiel würden zehn Wahrscheinlichkeiten mit jeweils einem Wert von 0.1 multipliziert $1 * 10^{-10}$ ergeben. Zu geringe Werte um vernünftig mit ihnen zu arbeiten.
+Zudem würde heutige Computer durch so geringe Floatwerte an ihre rechnerischen Grenzen getrieben werden. 
+Helfen wird uns hier die Logarithmusfunktion, die ihrerseits eine kontinuierliche steig-steigende Funktion darstellt, welche die größenverhältnisse unserer Wahrscheinlichkeiten nicht verändert. 
+Wir können also für alle Werte der Likelihood Funktion ebenso den Logarithmus verwenden, daher spricht man von der \textit{log-likelihood} von \textit{$\theta$}:
+\begin{align*}
+	l(\theta) &= \text{ln }L(\theta) \\
+	l(\theta) &= \text{ln}\prod_{k=1}^N p(x_k\mid\theta)
+\end{align*}
+welches unter Verwendung der Produktregel des Logarithmus:
+\begin{align*}
+	l(\theta) &= \text{ln}\sum_{k=1}^N p(x_k\mid\theta) \\
+	l(\theta) &= \sum_{k=1}^N \text{ln }p(x_k\mid\theta)
+\end{align*}
+ergibt. Würde man z.b.: die Parameter für eine eindimensionale Zufallsvariable \\
+\textit{x $\sim$ N($\mu$, $\sigma$)} schätzen, ergibt das
+\begin{align*}
+	l(\theta) &= \sum_{k=1}^N \text{ln }\frac{1}{\sqrt{2\pi\sigma^2}}e^{-\frac{(x_k-\mu)^2}{2\sigma^2}}
+\end{align*}
+mit $\theta$ := [\textit{$\mu$}, \textit{$\sigma$}]. Um nun die eigentlichen Parameter $\mu$ und $\sigma$ zu schätzen, bedarf es zwei weiterer Schritte:
+\begin{enumerate}
+	\item Leite {\textit{l($\theta$)} nach den jeweiligen Parametern aus $\theta$ ab}
+	\item {Setze die Ableitung auf 0 und löse die Gleichung nach den jeweiligen Parametern}
+\end{enumerate}
+Die ergibt auch durchaus Sinn. Wenn man generell den Maximalwert eine beliebigen Funktion bestimmen möchte, leitet man diese ab und setz die Gleichung auf 0.
+
+\subsection*{b.) Zeigen Sie unter Verwendung der Maximum Likelihood Methode, warum es eine gute Wahl zu sein scheint, bei der Schätzung der Parameter einer Normalverteilung folgendermaßen \newline vorzugehen}
+\begin{align*}
+	\hat\mu = \frac{1}{N}\sum_1^jx_j
+	\indent\text{ und }\indent
+	\hat\sigma = \sqrt{\frac{\sum_1^j(x_j-\mu)^2}{N}}
+\end{align*}
+Zunächst nehmen wir als Basis die Log-likelihood Funktion unter Verwendnung der Normalverteilung als unser Erklärungsmodell für unsere Daten.
+\begin{align*}
+	l(\theta) = \sum_{k=1}^N \text{ln }\frac{1}{\sqrt{2\pi\sigma^2}}\exp\bigg({-\frac{(x_k-\mu)^2}{2\sigma^2}}\bigg) && \text{$e^{x}$ $\equiv$ $\exp{x}$}
+\end{align*}
+Nun nehmen wir die Eigenschaft des Logarithmus für Multiplikationen und teilen die beiden Ausdrücke.
+\begin{align*}
+	l(\theta) &= \sum_{k=1}^N \text{ln }\frac{1}{\sqrt{2\pi\sigma^2}} + \text{ln }\exp\bigg(-\frac{1}{2}{\frac{(x_k-\mu)^2}{\sigma^2}}\bigg) && \text{ln(exp) = 1} \\
+	l(\theta) &= \sum_{k=1}^N \text{ln }\frac{1}{\sigma\sqrt{2\pi}} + -\frac{1}{2}{\frac{(x_k-\mu)^2}{\sigma^2}}
+\end{align*}
+Nun heben wir den Ausdruck heraus, in dem das durch die Summe definierte \textit{k} nicht vorkommt. Nachdem dieser Ausdruck aber dennoch \textit{N}-mal vorkommt, multiplizieren wir ihn mit \textit{N}.
+Gleichzeitig verschieben wir das $-\frac{1}{2}$, damit es besser positioniert ist.
+\begin{align*}
+	l(\theta) &= \text{N }\text{ln }\frac{1}{\sigma\sqrt{2\pi}} - \sum_{k=1}^N {\frac{(x_k-\mu)^2}{2\sigma^2}}
+\end{align*}
+Der Bruch mit $\frac{1}{\sigma\sqrt{2\pi}}$ kann in zwei seperate Brüche geteilt werden.
+\begin{align*}
+	l(\theta) &= \text{N }\text{ln }\frac{1}{\sigma}\frac{1}{\sqrt{2\pi}} - \sum_{k=1}^N {\frac{(x_k-\mu)^2}{2\sigma^2}} && \text{ln}(a*b) = \text{ln } a + \text{ln } b \\
+	l(\theta) &= \text{N }\text{ln }\frac{1}{\sigma}+\text{ln }\frac{1}{\sqrt{2\pi}} - \sum_{k=1}^N {\frac{(x_k-\mu)^2}{2\sigma^2}} && \text{ln } \frac{1}{a} = - \text{ln }a \\
+	l(\theta) &= \text{N } (- \text{ln }\sigma - \text{ln }\sqrt{2\pi}) - \sum_{k=1}^N {\frac{(x_k-\mu)^2}{2\sigma^2}}
+\end{align*}
+Nun haben wir unsere Ausgangsformel von der wir nach $\mu$ und $\sigma$ ableiten.
+
+\subsubsection*{Ableitung nach $\mu$}
+Möchte man die Ableitung von der Funktion \textit{l($\theta$)} notieren, nutzt man den Differentialoperator $\partial$.
+\begin{align*}
+	\frac{\partial l(\theta)}{\partial \mu} &= \text{N } (- \text{ln }\sigma - \text{ln }\sqrt{2\pi}) - \sum_{k=1}^N {\frac{(x_k-\mu)^2}{2\sigma^2}}
+\end{align*}
+bedeutet ``Leite $l(\theta)$ nach $\mu$ ab''. Nachdem der erste Term in der Gleichung nach $\mu$ nicht abgeleitet werden kann - da er eine Konstante darstellt - fällt dieser weg.
+\begin{align*}
+	\frac{\partial l(\theta)}{\partial \mu} &= - \sum_{k=1}^N {\frac{(x_k-\mu)^2}{2\sigma^2}} && \text{Ziehe $\frac{1}{2\sigma}$ heraus}\\
+	\frac{\partial l(\theta)}{\partial \mu} &= - \frac{1}{2\sigma^2}\sum_{k=1}^N (x_k-\mu)^2 && \text{Leite nach $\mu$ ab}\\
+	\frac{\partial l(\theta)}{\partial \mu} &= - \frac{1}{2\sigma^2}\text{ 2}\sum_{k=1}^N x_k-\mu && \text{Innere Ableitung von $x_k-\mu$}\\
+	\frac{\partial l(\theta)}{\partial \mu} &= + \frac{1}{2\sigma^2}\text{ 2}\sum_{k=1}^N x_k-\mu && \text{Kürze 2}\\
+	\frac{\partial l(\theta)}{\partial \mu} &= \frac{1}{\sigma^2}\sum_{k=1}^N x_k-\mu
+\end{align*}
+
+\subsubsection*{Maximieren von $\mu$}
+Die Maximierung von $\mu$ zur Findung von $\hat\mu$ geschieht durch Gleichsetzung mit 0.
+
+\begin{align*}
+	\frac{1}{\sigma^2}\sum_{k=1}^N x_k-\mu &= 0 && \text{Dividiere $\frac{1}{\sigma^2}$}\\
+	\sum_{k=1}^N x_k-\mu &= 0 && \text{Erweitere Summe}\\
+\end{align*}
+\begin{align*}
+	\sum_{k=1}^N x_k - \sum_{k=1}^N\mu &= 0 && \text{Bringe auf andere Seite}\\
+	\sum_{k=1}^N x_k &= \sum_{k=1}^N\mu && \text{Löse Summe, da $\mu$ konstant N mal vorkommt}\\
+	\sum_{k=1}^N x_k &= N\mu && \text{Dividiere durch N}\\
+	\hat\mu = \frac{\sum_{k=1}^N x_k}{N} &= \frac{1}{N}\sum_{k=1}^N x_k
+\end{align*}
+
+\subsubsection*{Ableitung nach $\sigma$}
+\begin{align*}
+	\frac{\partial l(\theta)}{\partial \sigma} &= \text{N } (- \text{ln }\sigma - \text{ln }\sqrt{2\pi}) - \sum_{k=1}^N {\frac{(x_k-\mu)^2}{2\sigma^2}}
+\end{align*} 
+bedeutet ``Leite $l(\theta)$ nach $\sigma$ ab''. Zunächst fällt einmal $- \text{ln }\sqrt{2\pi}$ - weil Konstante - weg.
+
+\begin{align*}
+	\frac{\partial l(\theta)}{\partial \sigma} &= - \text{N ln }\sigma - \sum_{k=1}^N {\frac{(x_k-\mu)^2}{2\sigma^2}} && \text{Leite ln $\sigma$ ab und ziehe $\frac{1}{2\sigma}$ heraus}\\
+	\frac{\partial l(\theta)}{\partial \sigma} &= - \text{N }\frac{1}{\sigma} - \frac{1}{2\sigma^2}\sum_{k=1}^N (x_k-\mu)^2 && \text{Schreibe $\frac{1}{\sigma^2}$ als $\sigma^{-2}$}\\
+	\frac{\partial l(\theta)}{\partial \sigma} &= - \text{N }\frac{1}{\sigma} - \frac{1}{2}\text{ }\sigma^{-2}\sum_{k=1}^N (x_k-\mu)^2 && \text{Leite $\sigma^{-2}$ ab und kürze -2}\\
+	\frac{\partial l(\theta)}{\partial \sigma} &= - \text{N }\frac{1}{\sigma} + \sigma^{-3}\sum_{k=1}^N (x_k-\mu)^2 && \text{Forme $\sigma^{-3}$ um}\\
+	\frac{\partial l(\theta)}{\partial \sigma} &= - \frac{N}{\sigma} + \frac{1}{\sigma^3}\sum_{k=1}^N (x_k-\mu)^2
+\end{align*}
+
+\subsubsection*{Maximieren von $\sigma$}
+Die Maximierung von $\sigma$ zur Findung von $\hat\sigma$ geschieht durch Gleichsetzung mit 0.
+\begin{align*}
+	- \frac{N}{\sigma} + \frac{1}{\sigma^3}\sum_{k=1}^N (x_k-\mu)^2 &= 0 && \text{Bringe $- \frac{N}{\sigma}$ auf die andere Seite}\\
+	\frac{1}{\sigma^3}\sum_{k=1}^N (x_k-\mu)^2 &= \frac{N}{\sigma} && \text{Multipliziere mit $\sigma^3$}\\
+	\sum_{k=1}^N (x_k-\mu)^2 &= \frac{N\sigma^3}{\sigma} && \text{Kürze $\sigma$}\\
+	\sum_{k=1}^N (x_k-\mu)^2 &= N\sigma^2 && \text{Dividiere durch N und ziehe die Wurzel}\\
+	\sigma &= \sqrt{\frac{\sum_{k=1}^N (x_k-\mu)^2}{N}}
+\end{align*}

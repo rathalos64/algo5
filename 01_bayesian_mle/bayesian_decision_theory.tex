@@ -1,0 +1,110 @@
+\section{Bayesian Decision Theory}
+\subsection*{a.) Erklären Sie in eigenen Worten sowie unter Verwendung von mathematischen Definitionen die grundlegenden Aspekte der Entscheidungstheorie nach Bayes}
+Die Bayesian Decision Theory repräsentiert ein statistisches Entscheidungsverfahren, welches sich auf der Annahme stützt, dass Entscheidungsprobleme
+statistisch als Wahrscheinlichkeiten dargestellt werden können. Die Theorie besagt, dass unter der Verwendung von relevanten Faktoren, das Entscheidungsproblem optimal
+und mit minimaler Fehlerwahrscheinlichkeit gelöst werden kann. Sie wird auch als Basis für simple Klassifizierer genommen. 
+
+Die Theorie basiert auf dem Satz von Bayes zur Berechnung von bedingten Wahrscheinlichkeiten wie z.b \textit{P($\omega$$\mid$x)} - wie wahrscheinlich ist das Eintreten oder das Sein von $\omega$ gegeben \textit{x}. 
+\begin{align*}
+	P(A\mid B) &= \frac{P(A)P(B\mid A)}{P(B)} && \text{Satz von Bayes}
+\end{align*}
+Die zwei wichtigen Faktoren, auf welchen die Entscheidungstheorie nach Bayes aufbaut,
+sind die:
+\begin{align*}
+	\textit{a priori probability} &= P(\omega) && \text{und die} \\
+	\textit{class-conditional probability density oder likelihood} &= p(x\mid \omega)
+\end{align*}
+Dabei wird $\omega$ als \textit{state of nature} $-$ als eine Klasse oder Kategorie bezeichnet, zu der man klassifizieren kann. Würde man das Wetter klassifizieren wollen, 
+wären z.b 
+\begin{align*}
+	\omega_1 &= \text{sonnig} \\ 
+	\omega_2 &= \text{bewölkt} \\ 
+	\omega_3 &= \text{regnerisch}
+\end{align*}
+Hingegen beschreibt \textit{x} ein Feature, welches wir in Betracht nehmen, um unseren Klassifizierer zu verbessern. In Bezug zu dem Wetterbeispiel von vorhin wäre \textit{x} z.b die Luftfeuchtigkeit.
+Nachdem jeder Tag eine andere Luftfeuchtigkeit besitzt, wird \textit{x} statistisch als kontinuierliche Zufallvariable dargestellt, die eine bestimmte Verteilung hat. Welche Art der Verteilung hängt von der
+der jeweiligen Klasse $\omega$ ab = \textit{p(x$\mid$$\omega$)}.
+
+\bigskip\noindent
+Zusammengefasst und unter der Verwendung des Satzes von Bayes lässt sich die Entscheidungstheorie darstellen als:
+\begin{align}
+	P(\omega\mid x) &= \frac{P(\omega)P(x\mid \omega)}{P(x)}
+\end{align}
+wo \textit{P($\omega$$\mid$x)} die \textit{a posteriori probability} $-$ also die resultierende Wahrscheinlichkeit der Klasse $\omega$ gegeben Feature \textit{x} darstellt. Als Parallele zu unserem Wetterbeispiel bezeichnet \textit{P}(bewölkt$\mid$0.67) die \textit{a posteriori} Wahrscheinlichkeit, dass der Tag bewölkt ist, gegeben einer Luftfeuchtigkeit von 67\%.
+
+Manch einer wird sich wundern über die Verwendung von \textit{P(x)}, obwohl zuvor von nur zwei entscheidenden Faktoren gesprochen wurde.
+Tatsächlich stellt \textit{P(x)} einen sogenannten Evidenzfaktor da, der lediglich dafür sorgt, dass die \textit{a posteriori probabilities} aller Klassen \textit{$\omega_1$ ... $\omega_n$} $-$ also \textit{P($\omega_1$$\mid$ x) ... P($\omega_n$$\mid$ x)} $-$ unter Betrachtung des Features \textit{x} summiert 1 ergibt,
+so wie alle guten Wahrscheinlichkeiten es tun sollten:
+\begin{align*}
+	p(x) &= \sum_{i=1}^n P(\omega_j)P(x\mid \omega_j)
+\end{align*}
+Dieser Faktor kann in Entscheidungsfragen weggelassen werden. Dadurch ergibt sich die Entschiedungstheorie:
+\begin{align}
+	\text{Wähle } \omega_1 \text{ wenn } P(\omega_1)P(x\mid\omega_1) > P(\omega_2)P(x\mid\omega_2); && \text{ansonsten wähle } \omega_2
+\end{align}
+
+Weiters kann man unter Verwendung von englischen Ausdrücken die Entschiedungstheorie nach Bayes auch darstellen als:
+\begin{align}
+	\text{a posteriori} &= \frac{\text{a priori x likelihood}}{\text{evidence}}
+\end{align}
+
+\noindent
+Die \textit{a priori probability} \textit{P($\omega$)} bezeichnet das Wissen, welches wir im Vorhinein über das Eintreten einer bestimmten Kategorie oder Klasse $\omega$. In unserem Beispiel zum Wetter könnte man z.b aus den Daten entnehmen,
+dass \textit{P($\omega_1$)} = 0.7, also die Wahrscheinlichkeit, dass der Tag sonnig ist. Das heißt für zukünftige Klassifizierungen würden wir uns zum Einen auf diesen Wahrscheinlichkeitswert stützen. Übrigens, es ist genauso legitim, die \textit{a priori probability} zu schätzen bzw. anzunehmen.
+Es gibt Fälle, bei denen wir uns theoretisch nur auf die \textit{a priori probability} verlassen könnten, ohne andere Wahrscheinlichkeiten zu betrachten. Dies passiert, wenn wir, gegeben den Daten, die Klassifizierung nur mit unserem Vorwissen vornehmen können. D.h wir würden
+ohne Betrachtung von Features oder Eigenschaften den Tag nach der höchsten \textit{a priori} Wahrscheinlichkeit \textit{P($\omega$)} einstufen.  
+Als Beispiel würde unsere Klassifikiation immer die Klasse \textit{sonnig} bevorzugen, wenn P($\omega_1$ = sonnig) = 0.7 $>$ P($\omega_2$ = bewölkt) = 0.2 $>$ P($\omega_3$ = regnerisch) = 0.1. Natürlichweise fällt die Kurzsichtigkeit dieser Methode sofort auf. 
+Wir würden jedes Mal den Tag als sonnig klassifizieren, selbst der zu betrachtende Tag ein regnerischer Tag wäre.
+
+\bigskip\noindent
+Möchte man ein Feature in die Entschiedungshilfe miteinfliesen lassen, so betrachtet man alle Samples dieses Features basierend auf
+den zu klassifizierenden Kategorien. Dies ergibt eine Verteilung des Features pro Klasse. Daher wird diese Wahrscheinlichkeit auch als 
+\textit{class-conditional probability density} function \textit{p(x$\mid$$\omega$)} bezeichnet, welche die \textit{likelihood} von $\omega$ in Respekt zu \textit{x} darstellt. Der Term \textit{likelihood} lässt sich ausdrücken als 
+``Unter der Prämisse, alle anderen Wahrscheinlichkeiten wären gleich, wie richtig ist die Kategorie $\omega$ für die Verteilung der Zufallsvariable \textit{x} \textit{p(x$\mid$$\omega$)} geeignet?''. Die Verteilung der Zufallsvariable wird entweder aus den Daten entnommen oder,
+wie oft in der Praxis geschätzt. Aus unserem Beispiel von vorhin wäre dies die Luftfeuchtigkeit.
+
+\bigskip\noindent
+Abschließend muss noch erwähnt werden, dass die Entscheidungstheorie nach Bayes, so wie zuvor simpel beschrieben, lediglich die mathematische Definitionen für ein Feature \textit{x} beschreibt. Zur Verwendung von mehreren Features benötigt es weitere Definitionen, welche hier nicht behandelt werden.
+
+\subsection*{b.) Zeigen Sie anhand eines selbst entworfenen Beispiels den Einsatz der Entscheidungstheorie nach Bayes}
+Man nehme an Sportler unterziehen sich einen Drogentest um herauszufinden, ob diese Dopingsubstanzen genommen haben oder nicht. Dabei betrachtet man für jeden Sportler das Resultat seines/ihres
+Drogentests, dessen Eigenschaft sich als diskrete Zufallsvariable \textit{x} darstellen lässt (positiv $+$ oder negativ $-$). Man möchte nun basierend auf dem Drogentest herausfinden, ob ein beliebiger Sportler Dopingsubstanzen konsumiert oder nicht gegeben dass sein Drogentest positiv ausgefallen ist.
+Sportler lassen sich in zwei Kategorien eingliedern: In jene, welche Dopingsubstanzen konsumieren und jene, die es nicht tun. Aus den Daten erschließen wir, dass 0.5\% der Sportler Dopingmittel konsumieren, während 99.5\% es nicht tun. D.h unsere \textit{a priori} Wahrscheinlichkeiten sind:
+\begin{align*}
+	P(\omega_1 &= \text{Konsumiert Dopingmittel}) &= 0.5\% = 0.005\\
+	P(\omega_2 &= \text{Konsumiert keine Dopingmittel}) &= 99.5\% = 0.995
+\end{align*}
+Weiters wissen wir, dass diese Drogentests sehr zuverlässig sind, was ihre Vorhersage angeht. So sagen sie bei
+Sportler, welche Dopingmittel konsumieren zu 99\% vorraus, dass diese positiv sind und zu 1\%, dass diese negativ ausfallen.
+Ebenso bei nicht dopenden Sportler. Da liegt die Wahrscheinlichkeit der \textit{likelihood}, dass der Test negativ ausfällt bei 99\% und dass er positiv ausfällt bei 1\%. Also eine ziemlich
+gute True Positiv Rate und eine True Negativ Rate.
+\begin{align*}
+	P(x &= positiv\mid \text{Konsumiert Drogenmittel}) &= 99\% = 0.99\\
+	P(x &= positiv\mid \text{Konsumiert keine Drogenmittel}) &= 1\% = 0.01
+\end{align*}
+und
+\begin{align*}	
+	P(x &= negativ\mid \text{Konsumiert keine Drogenmittel}) &= 99\% = 0.99\\
+	P(x &= negativ\mid \text{Konsumiert Drogenmittel}) &= 1\% = 0.01
+\end{align*}
+Der Evidenzfaktor $-$ also Wahrscheinlichkeit, dass der Test des/der Sportlers/Sportlerin positiv ausfallen kann, lässt sich akkumuliert ausrechnen.
+\begin{align*}	
+	P(\text{positiv}) &= P(\text{positiv}\mid \omega_1)P(\omega_1) + P(\text{positiv}\mid \omega_2)P(\omega_2)\\
+	P(\text{positiv}) &= 0.99 * 0.005 + 0.01 * 0.995 = 0.0150 = 1.5\%	
+\end{align*}
+Lassen wir uns nun die \textit{a posteriori} Wahrscheinlichkeiten ausrechnen, wie wahrscheinlich ein gegebener beliebiger Sportler Dopingmittel konsumiert gegeben, dass
+sein Drogentest positiv ausfiel.
+\begin{align*}	
+	P(\omega_1\mid \text{positiv}) = \frac{P(\text{positiv}\mid \omega_1)P(\omega_1)}{P(\text{positiv})} = \frac{0.99 * 0.005}{0.015} = 0.33 = 33\%
+\end{align*}
+Das Ergebnis überrascht, da ja der Drogentest bei Spotlern, welche Dopingmittel konsumieren, die Positivität zu 99\% vorhersagt. Diese Annahme täuscht jedoch.
+Ausschlagebend ist die Anzahl der tatsächlichen Sportler/Sportlerinnen, welche Dopingmittel konsumieren in unserem Datenset. Da die \textit{a priori} Wahrscheinlichkeit sehr gering
+zu sein scheint mit \textit{P($\omega_1$)} = 0.5\%, überwiegt das Gewicht der Falschpositiv klassifizierten Sportler aus der Menge an nicht doping-konsumierenden Sportler.
+
+Als Gegenprobe zum Beweis von guten Wahrscheinlichkeiten berechnen wir uns nun die Wahrscheinlichkeit, dass ein Sportler keine Dopingmittel konsumiert gegeben, dass sein Drogentest
+positiv ausfällt. Diese Wahrscheinlichkeit sollte diegleiche sein, wie 1 $-$ P($\omega_1\mid$ positiv) = 67\% unter der Annahme, dass P($\omega_1\mid$ positiv) $+$ P($\omega_2\mid$ positiv) $=$ 1.
+\begin{align*}	
+	P(\omega_2\mid \text{positiv}) = \frac{P(\text{positiv}\mid \omega_2)P(\omega_2)}{P(\text{positiv})} = \frac{0.01 * 0.995}{0.015} = 0.6633 \sim= 67\%
+\end{align*}
+Da die Wahrscheinlichkeit, dass ein beliebiger Sportler
+unter der Prämisse, sein Drogentest sei positiv, dennoch keine Dopingmittel verwendet höher ist, als dass er welche verwendet, wird unser Klassifizierer den Sportler dementsprechend auch so kategorisieren. 
