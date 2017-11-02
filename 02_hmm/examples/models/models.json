@@ -1,18 +1,15 @@
 [
 	{
-		"id": "test_hmm_01",
-
+		"id": "hmm_01",
 		"states": ["rainy", "cloudy", "sunny"],
 		"observations": ["humid", "medium", "dry"],
 		
 		"initial": {"rainy": 0.3, "cloudy": 0.5, "sunny": 0.2},
-
 		"transitions": {
 			"rainy": {"rainy": 0.4, "cloudy": 0.3, "sunny": 0.3},
 			"cloudy": {"rainy": 0.2, "cloudy": 0.6, "sunny": 0.2},
 			"sunny": {"rainy": 0.1, "cloudy": 0.1, "sunny": 0.8}
 		},
-
 		"emissions": {
 			"rainy": {"humid": 0.4, "medium": 0.5, "dry": 0.1},
 			"cloudy": {"humid": 0.3, "medium": 0.4, "dry": 0.3},
@@ -20,41 +17,37 @@
 		}
 	},
 	{
-		"id": "test_hmm_02",
-
+		"id": "hmm_02",
 		"states": ["rainy", "cloudy", "sunny"],
 		"observations": ["humid", "medium", "dry"],
 		
 		"initial": {"rainy": 0.5, "cloudy": 0.3, "sunny": 0.2},
-
 		"transitions": {
 			"rainy": {"rainy": 0.4, "cloudy": 0.3, "sunny": 0.3},
-			"cloudy": {"rainy": 0.2, "cloudy": 0.6, "sunny": 0.2},
-			"sunny": {"rainy": 0.1, "cloudy": 0.1, "sunny": 0.8}
+			"cloudy": {"rainy": 0.1, "cloudy": 0.8, "sunny": 0.1},
+			"sunny": {"rainy": 0.5, "cloudy": 0.3, "sunny": 0.2}
 		},
-
 		"emissions": {
-			"rainy": {"humid": 0.4, "medium": 0.5, "dry": 0.1},
-			"cloudy": {"humid": 0.3, "medium": 0.4, "dry": 0.3},
+			"rainy": {"humid": 0.3, "medium": 0.4, "dry": 0.3},
+			"cloudy": {"humid": 0.4, "medium": 0.5, "dry": 0.1},
 			"sunny": {"humid": 0.2, "medium": 0.2, "dry": 0.6}
 		}
 	},
 	{
-		"id": "test_hmm_03",
-	
-		"states": ["fair", "loaded"],
-		"observations": ["t", "h"],
+		"id": "hmm_03",
+		"states": ["rainy", "cloudy", "sunny"],
+		"observations": ["humid", "medium", "dry"],
 		
-		"initial": {"fair": 0.5, "loaded": 0.5},
-	
+		"initial": {"rainy": 0.1, "cloudy": 0.1, "sunny": 0.8},
 		"transitions": {
-			"fair": {"fair": 0.6, "loaded": 0.4},
-			"loaded": {"fair": 0.4, "loaded": 0.6}
+			"rainy": {"rainy": 0.5, "cloudy": 0.3, "sunny": 0.2},
+			"cloudy": {"rainy": 0.1, "cloudy": 0.8, "sunny": 0.1},
+			"sunny": {"rainy": 0.4, "cloudy": 0.3, "sunny": 0.3}
 		},
-	
 		"emissions": {
-			"fair": {"h": 0.5, "t": 0.5},
-			"loaded": {"h": 0.8, "t": 0.2}
+			"rainy": {"humid": 0.2, "medium": 0.2, "dry": 0.6},
+			"cloudy": {"humid": 0.5, "medium": 0.1, "dry": 0.4},
+			"sunny": {"humid": 0.3, "medium": 0.4, "dry": 0.3}
 		}
 	}
 ]

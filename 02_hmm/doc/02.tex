@@ -1,0 +1,62 @@
+\documentclass[10pt, a4paper]{scrartcl}
+
+% packages
+\usepackage[naustrian]{babel} 
+\usepackage[utf8]{inputenc}
+\usepackage[headsepline]{scrlayer-scrpage}
+\usepackage{mathtools}
+\usepackage{titlesec}
+\usepackage{titling}
+\usepackage[usenames, dvipsnames]{color}
+\usepackage{listings, lscape}[language=go]
+\usepackage{caption}
+\usepackage{dirtree}
+\usepackage{graphicx}
+\usepackage{wrapfig}
+\usepackage[top=3.04cm, bottom=3.54cm, left=3.54cm, right=3.54cm]{geometry}
+
+\lstset{language=Go,
+	basicstyle=\color{Black}\ttfamily\normalsize,
+	keywordstyle=\color{Blue}\ttfamily,
+	stringstyle=\color{Red}\ttfamily,
+	commentstyle=\color{Green}\ttfamily,
+	numbers=left,
+	numbersep=6pt,
+	numberstyle=\color{Black}\small,
+	showstringspaces=false, 
+	tabsize=4,
+	captionpos=tb,
+	breaklines=true
+}
+\captionsetup[lstlisting]{format=plain}
+
+% use rm as default document font 
+\renewcommand{\familydefault}{\rmdefault}
+
+% define title formats
+\titleformat{\section}
+	{\rmfamily\Large\bfseries}
+	{\thesection}{1em}{}
+\titleformat{\subsection}
+	{\rmfamily\large\bfseries}
+	{\thesection}{1em}{}
+\titleformat{\subsubsection}
+	{\rmfamily\normalsize\bfseries}
+	{\thesection}{1em}{}
+
+% define font for title (cmr = Computer Modern; Tex default)
+\font\cmtitle=cmr12 at 20pt
+
+\clearpairofpagestyles
+\ihead{S1510458019 Alen Kocaj}
+\ohead{ALG5I/UE02}
+\ofoot{Page {\pagemark}}
+
+\title{{\cmtitle ALG5I - Übung 02}}
+\author{Alen Kocaj}
+\date{01. November 2017}
+
+\begin{document}
+\maketitle
+\input{hidden_markov_models}
+\end{document}

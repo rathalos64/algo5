@@ -1,21 +1,27 @@
 package main
 
+// State is the state the hidden system can enter
 type State string
+
+// ObservationSymbol is the observation within
+// a sequence whose symbol is one from V (set of observation symbols).
 type ObservationSymbol string
 
 // HMM models a hidden markov model with all possible parameter as fields
 //  S: represents the individual states {s1, s2, ... sN}
 //  N: is the number of states
 //
-//  V: represents the individual observation symbols (all observations types known)
+//  V: represents the individual observation symbols (all observations types
+//	   known)
 //  M: is the number of distinct observation symbols per state
 //
 // PI: represents the initial state distribution (initial start vector)
 //  A: represents the state transition probability distribution
-//  B: represents the observation symbol probability distribution (emission probabilities)
+//  B: represents the observation symbol probability distribution
+// 	   (emission probabilities)
 //
-// In order to identify sequences by their observation symbol PI, A and B are keyed with the
-// state / observation symbol.
+// In order to identify sequences by their observation symbol PI, A and B are
+// keyed with the state / observation symbol.
 type HMM struct {
 	ID string `json:"id"`
 
@@ -48,6 +54,8 @@ func (hmm HMM) Validate() ValidationResult {
 	return validationResult
 }
 
+// validateS verifies the validity of the set
+// of states of a HMM.
 func (hmm HMM) validateS() ValidationResult {
 	validationResult := ValidationResult{}
 	uniqueElements := map[string]bool{}
@@ -65,6 +73,8 @@ func (hmm HMM) validateS() ValidationResult {
 	return validationResult
 }
 
+// validateV verifies the validity of the set
+// of observation symbols of a HMM.
 func (hmm HMM) validateV() ValidationResult {
 	validationResult := ValidationResult{}
 	uniqueElements := map[string]bool{}
@@ -82,6 +92,8 @@ func (hmm HMM) validateV() ValidationResult {
 	return validationResult
 }
 
+// validatePI verifies the validity of the set
+// of initial states.
 func (hmm HMM) validatePI() ValidationResult {
 	validationResult := ValidationResult{}
 
@@ -119,6 +131,7 @@ func (hmm HMM) validatePI() ValidationResult {
 	return validationResult
 }
 
+// validateA verifies the validity of the transition matrix of a HMM.
 func (hmm HMM) validateA() ValidationResult {
 	validationResult := ValidationResult{}
 
@@ -161,8 +174,8 @@ func (hmm HMM) validateA() ValidationResult {
 
 	// verify sum of transition probabilities
 	// All probabilities in each row must sum up to 1
-	// Or each transition from a fixed state si to all other states sj (assuming that every state
-	// can reach every other state) must sum up to 1
+	// Or each transition from a fixed state si to all other states sj
+	// (assuming that every state can reach every other state) must be 1
 	for row := range hmm.A {
 		var probability float64
 
@@ -179,6 +192,7 @@ func (hmm HMM) validateA() ValidationResult {
 	return validationResult
 }
 
+// validateB verifies the validity of the emissions matrix of a HMM.
 func (hmm HMM) validateB() ValidationResult {
 	validationResult := ValidationResult{}
 

@@ -2,12 +2,15 @@ package main
 
 import "fmt"
 
+// Sequence represents a succession of observations which will be tested
+// against Hidden Markov Models in order to determine the likeliest HMM.
 type Sequence struct {
 	ID           string              `json:"id"`
 	HMMIDs       []string            `json:"hmm_ids"`
 	Observations []ObservationSymbol `json:"observations"`
 }
 
+// Validate verifies the validity of the sequence.
 func (seq Sequence) Validate(hmms []HMM) ValidationResult {
 	validationResult := ValidationResult{}
 
@@ -16,16 +19,15 @@ func (seq Sequence) Validate(hmms []HMM) ValidationResult {
 	}
 
 	if len(seq.HMMIDs) == 0 {
-		validationResult.Add("HMMIDs", "No HMM Ids given; testing against zero HMMs")
+		validationResult.Add("HMMIDs", "No HMM Ids given")
 	}
 
-	// verify that the HMMs against which the sequences tests exists
+	// verify that the HMMs which the sequence tests against, exists
 	hmmIDs := hmmIDsToStringSlice(hmms)
 	for _, seqHMMID := range seq.HMMIDs {
 		if !isInStringSlice(seqHMMID, hmmIDs) {
 			validationResult.Add("HMMIDs",
-				fmt.Sprintf("Sequence can't be matched against HMM; "+
-					"the HMM with ID '%s' does not exist", seqHMMID))
+				fmt.Sprintf("HMM with ID '%s' does not exist", seqHMMID))
 			break
 		}
 	}
@@ -34,20 +36,16 @@ func (seq Sequence) Validate(hmms []HMM) ValidationResult {
 	// the sequence is testing against
 	for _, symbol := range seq.Observations {
 		for _, hmm := range hmms {
-
 			// test only against the target HMMs
 			if !isInStringSlice(hmm.ID, seq.HMMIDs) {
 				continue
 			}
-
 			if !isInObservationSlice(symbol, hmm.V) {
 				validationResult.Add("Observations",
-					fmt.Sprintf("Observationsymbol '%q' does not "+
-						"exists in target HMMs", symbol))
+					fmt.Sprintf("Symbol '%q' doesn't exists in target HMMs", symbol))
 				break
 			}
 		}
 	}
-
 	return validationResult
 }

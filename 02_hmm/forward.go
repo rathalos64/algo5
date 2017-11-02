@@ -8,16 +8,16 @@ func Evaluate(seq Sequence, hmm HMM) float64 {
 
 	var probability float64
 	for _, state := range hmm.S {
-		probability += Induction(seq, hmm, state, T)
+		probability += induction(seq, hmm, state, T)
 	}
 
 	return probability
 }
 
-// Induction calculates for a given state s in a HMM the probability of
-// reaching the state at point t - by calculating all previous paths to s at t - and
-// observing the symbol of the sequence at point t
-func Induction(seq Sequence, hmm HMM, s State, t int) float64 {
+// induction calculates for a given state s in a HMM the probability of
+// reaching the state at point t - by calculating all previous paths to s at
+// t - and observing the symbol of the sequence at point t
+func induction(seq Sequence, hmm HMM, s State, t int) float64 {
 	var probability float64
 
 	// tPrev means the previous point while every
@@ -29,17 +29,18 @@ func Induction(seq Sequence, hmm HMM, s State, t int) float64 {
 		// the probability of the previous point; helper variable
 		var pPrev float64
 
-		// if the previous point is the first, calculate it using the initial probabilities;
+		// if the previous point is the first, calculate it using PI;
 		// otherwise, do another induction step at point tPrev = t - 1
 		if tPrev > 1 {
-			pPrev = Induction(seq, hmm, fromState, tPrev)
+			pPrev = induction(seq, hmm, fromState, tPrev)
 		} else {
-			pPrev = hmm.PI[fromState] * hmm.B[fromState][seq.Observations[tPrev-1]]
+			pPrev = hmm.PI[fromState] *
+				hmm.B[fromState][seq.Observations[tPrev-1]]
 		}
 
-		// the previous probability at t - 1 given a previous state multiplied by the
-		// probability of actually transition from the previous state into the actual one
-		// at t
+		// the previous probability at t - 1 given a previous state
+		// multiplied by the probability of actually transition from
+		// the previous state into the actual one at t
 		probability += (pPrev * hmm.A[fromState][s])
 	}
 

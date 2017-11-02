@@ -9,6 +9,9 @@ import (
 	"os"
 )
 
+// Application is the main application and contains
+// all necessary information for the whole program to work.
+// It stores all defined models and all sequences of observations.
 type Application struct {
 	HMMs      []HMM
 	Sequences []Sequence
@@ -16,9 +19,18 @@ type Application struct {
 
 func main() {
 	// define command line flags
-	precision := flag.String("precision", "10", "the numerical precision for L(O|M) and log L(O|M)")
-	hmmPath := flag.String("hmm", "examples/models/hmm.json", "the path to the hmm json file")
-	sequencePath := flag.String("sequence", "examples/sequences/sequence.json", "the path to the sequence json file")
+	precision := flag.String(
+		"precision",
+		"10",
+		"the numerical precision for L(O|M) and log L(O|M)")
+	hmmPath := flag.String(
+		"models",
+		"examples/models/models.json",
+		"the path to the hmm json file")
+	sequencePath := flag.String(
+		"sequences",
+		"examples/sequences/sequences.json",
+		"the path to the sequence json file")
 	flag.Parse()
 
 	app := Application{}
@@ -26,46 +38,49 @@ func main() {
 	// read models
 	err := app.ReadHMMs(*hmmPath)
 	if err != nil {
-		log.Fatalf("Could not read HMMs from %q: %s", hmmPath, err)
+		log.Fatalf("Couldn't read HMMs from %q: %s", hmmPath, err)
 	}
 
 	// validate all models
 	validationResult := app.ValidateHMMs()
 	if !validationResult.Valid() {
-		log.Fatalf("Validation of all HMMs failed: \n%s", validationResult.Marshal())
+		log.Fatalf("Validation of all HMMs failed: \n%s",
+			validationResult.Marshal())
 	}
-
 	// validate each models individually
 	for _, hmm := range app.HMMs {
 		validationResult := hmm.Validate()
 		if !validationResult.Valid() {
-			log.Fatalf("Validation of HMM %q failed: \n%s", hmm.ID, validationResult.Marshal())
+			log.Fatalf("Validation of HMM %q failed: \n%s", hmm.ID,
+				validationResult.Marshal())
 		}
 	}
 
 	// read sequences
 	err = app.ReadSequences(*sequencePath)
 	if err != nil {
-		log.Fatalf("Could not read Sequences from %q: %s", sequencePath, err)
+		log.Fatalf("Couldn't read Sequences from %q: %s", sequencePath, err)
 	}
 
 	// validate all models
 	validationResult = app.ValidateSequences()
 	if !validationResult.Valid() {
-		log.Fatalf("Validation of all Sequences failed: \n%s", validationResult.Marshal())
+		log.Fatalf("Validation of all Sequences failed: \n%s",
+			validationResult.Marshal())
 	}
-
 	// validate each sequences individually
 	for _, sequence := range app.Sequences {
 		validationResult := sequence.Validate(app.HMMs)
 		if !validationResult.Valid() {
-			log.Fatalf("Validation of Sequence %q failed: \n%s", sequence.ID, validationResult.Marshal())
+			log.Fatalf("Validation of Sequence %q failed: \n%s",
+				sequence.ID, validationResult.Marshal())
 		}
 	}
 
 	// evaluate for each sequence each model
 	for _, sequence := range app.Sequences {
-		fmt.Printf("======================================================================\n")
+		fmt.Printf("=====================================" +
+			"=================================\n")
 
 		// the best model for the sequence
 		best := Result{}
@@ -79,7 +94,7 @@ func main() {
 
 			fmt.Printf("## using %q \n", hmm.ID)
 
-			// find likelihood
+			// calculate the likelihood of model given sequence
 			likelihood := Evaluate(sequence, hmm)
 			result := Result{
 				ID:            hmm.ID,
@@ -96,15 +111,18 @@ func main() {
 			fmt.Printf("---------------------------------\n")
 		}
 
-		fmt.Printf("## [RESULT] argmax(Mj) of P(%q | Mj) is \n", sequence.ID)
+		fmt.Printf("## [RESULT] argmax(Mj) of P(%q | Mj) is\n", sequence.ID)
 		fmt.Printf("> ID = %q \n", best.ID)
 		fmt.Printf("> L(O|M) = %."+*precision+"f \n", best.Likelihood)
-		fmt.Printf("> log L(O|M) = %."+*precision+"f \n", best.LogLikelihood)
+		fmt.Printf("> log L(O|M) = %."+*precision+"f\n", best.LogLikelihood)
 
-		fmt.Printf("======================================================================\n")
+		fmt.Printf("=====================================" +
+			"=================================\n")
 	}
 }
 
+// ReadHMMs reads all defined HMMs from the given path
+// and stores it in the application
 func (app *Application) ReadHMMs(path string) error {
 	readerHmms, err := os.Open(path)
 	if err != nil {
@@ -129,6 +147,7 @@ func (app *Application) ReadHMMs(path string) error {
 	return nil
 }
 
+// ValidateHMMs verifies the validity of the read HMMs
 func (app Application) ValidateHMMs() ValidationResult {
 	validationResult := ValidationResult{}
 	uniqueElements := map[string]bool{}
@@ -143,13 +162,14 @@ func (app Application) ValidateHMMs() ValidationResult {
 			validationResult.Add("HMMs", "HMMs must have unique ID")
 			break
 		}
-
 		uniqueElements[hmm.ID] = true
 	}
 
 	return validationResult
 }
 
+// ReadSequences reads all defined sequences of observations from the
+// given path and stores it in the application
 func (app *Application) ReadSequences(path string) error {
 	sequenceReader, err := os.Open(path)
 	if err != nil {
@@ -168,6 +188,7 @@ func (app *Application) ReadSequences(path string) error {
 	return nil
 }
 
+// ValidateSequences verifies the validity of the read sequences
 func (app Application) ValidateSequences() ValidationResult {
 	validationResult := ValidationResult{}
 	uniqueElements := map[string]bool{}
@@ -179,10 +200,9 @@ func (app Application) ValidateSequences() ValidationResult {
 	// verify the uniqueness of the hmm by inspecting ID
 	for _, sequence := range app.Sequences {
 		if uniqueElements[sequence.ID] == true {
-			validationResult.Add("Sequences", "Sequences must have unique ID")
+			validationResult.Add("Sequences", "Must have unique ID")
 			break
 		}
-
 		uniqueElements[sequence.ID] = true
 	}
 

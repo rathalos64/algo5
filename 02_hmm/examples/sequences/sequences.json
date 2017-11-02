@@ -1,0 +1,20 @@
+[
+	{
+		"id": "sequence_01",
+		"hmm_ids": ["hmm_01", "hmm_02", "hmm_03"],
+
+		"observations": ["dry", "humid", "medium"]
+	},
+	{
+		"id": "sequence_02",
+		"hmm_ids": ["hmm_01", "hmm_02"],
+
+		"observations": ["dry", "humid"]
+	},
+	{
+		"id": "sequence_03",
+		"hmm_ids": ["hmm_01"],
+	
+		"observations": ["dry", "humid", "medium", "humid", "dry"]
+	}
+]
