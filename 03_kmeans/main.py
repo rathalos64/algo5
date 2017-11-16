@@ -130,7 +130,7 @@ def main():
 		for cluster in clusters:
 			error += cluster.approximation_error(euclidian_distance, app.D)
 
-		mqe = round(error / len(data), 8)
+		mqe = error / len(data)
 		print(f"> Average error: {mqe}")
 
 		if mqe >= bestmqe and bestmqe != -1:
@@ -220,16 +220,6 @@ def save_figure_2d(app, data, clusters, i, path):
 
 	pl.xlabel("x")
 	pl.ylabel("y")
-
-	factor = 2
-	min_x = data.T[0].min() * factor
-	max_x = data.T[0].max() * factor
-
-	min_y = data.T[1].min() * factor
-	max_y = data.T[1].max() * factor
-	
-	pl.xlim([min_x, max_x])
-	pl.ylim([min_y, max_y])
 
 	suffices = ["st", "nd", "rd"]
 	suffix = "th"

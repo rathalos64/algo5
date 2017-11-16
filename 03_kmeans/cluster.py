@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+import math
 from functools import reduce
 
 class Clusters:
@@ -15,7 +16,7 @@ class Clusters:
 	def append_to_nearest_cluster(self, observation, dist, D):
 		# find the minimized distance between an observation
 		# and all cluster centers
-		cluster = min([(cluster.id, dist(observation, cluster.mean, D)) 
+		cluster = min([(cluster.id, dist(observation, cluster.mean, D))
 						for cluster in self.clusters.values()], key = lambda x: x[1])
 
 		self.clusters[cluster[0]].append_observation(observation)
@@ -40,14 +41,22 @@ class Cluster:
 	def center_mean(self):
 		if len(self.observations) != 0:
 			self.mean = reduce(lambda x, y: x + y, self.observations) / len(self.observations)
-			self.mean = self.mean[:-1]
 
 	# approximation_error calculates the summed error of all observations
 	# if they are approximated by the current cluster a given distance function.
 	# It is the scattering of all points within the current cluster.
 	def approximation_error(self, dist, D):
 		error = 0
-		for observations in self.observations:
-			error += dist(observations, self.mean, D)
+		for observation in self.observations:
+			error += dist(observation, self.mean, D)
+
+		return error
+
+	# approximation_error calculates the summed error of all observations squared
+	# within the current cluster.
+	def approximation_error_squared(self, dist, D):
+		error = 0
+		for observation in self.observations:
+			error += math.pow(dist(observation, self.mean, D), 2)
 
 		return error
