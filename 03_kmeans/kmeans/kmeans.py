@@ -3,7 +3,8 @@
 import random
 import math
 import numpy as np
-import cluster as cl
+from .cluster import Clusters
+from .cluster import Cluster 
 
 class Kmeans:
 	def __init__(self, data, K, D, dist):
@@ -32,9 +33,9 @@ class Kmeans:
 			self.centers.append(list(random.choice(self.data)))
 
 		# define clusters
-		self.clusters = cl.Clusters()
+		self.clusters = Clusters()
 		for i in range(0, self.K):
-			self.clusters.append_cluster(cl.Cluster(
+			self.clusters.append_cluster(Cluster(
 				cluster_id 		= f"c{i}",
 				observations 	= [],
 				mean 			= self.centers[i]
@@ -61,6 +62,41 @@ class Kmeans:
 			for cluster in self.clusters:
 				error += cluster.approximation_error(self.dist, self.D)
 			mqe = error / len(self.data)
+
+			if mqe >= bestmqe and bestmqe != -1:
+				break
+
+			if mqe < bestmqe or bestmqe == -1:
+				bestmqe = mqe
+
+			i = i + 1
+
+	# generator function
+	def run_iter(self):
+		bestmqe = -1
+		mqe = 0
+		i = 0
+
+		while True:
+			self.clear()
+
+			# assign observations to cluster
+			for observation in self.data:
+				self.clusters.append_to_nearest_cluster(observation, self.dist, self.D)
+
+			# define new means
+			for cluster in self.clusters:
+				cluster.center_mean()
+
+			# compute mqe (mean quantisation error) in relation to |data|.
+			# The average scattering across ALL(!) clusters.
+			error = 0
+			for cluster in self.clusters:
+				error += cluster.approximation_error(self.dist, self.D)
+			mqe = error / len(self.data)
+
+			# yield result after calculating means and MQE
+			yield [self.clusters, mqe]
 
 			if mqe >= bestmqe and bestmqe != -1:
 				break

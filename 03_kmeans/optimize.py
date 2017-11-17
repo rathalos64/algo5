@@ -4,15 +4,15 @@ import numpy as np
 import math
 from matplotlib import pyplot as pl
 
-from kmeans import Kmeans
+from kmeans.kmeans import Kmeans
 
 def main():
-	data = np.random.randint(10000, size=(1000,2))
+	data = np.random.uniform(low=0.0, high=1000.0, size=(1000,2))
 
 	kmeans = Kmeans(data, 1, len(data[0]), euclidian_distance)
 
 	kmin = 2
-	kmax = 5
+	kmax = 20
 	k_range = range(kmin, kmax)
 
 	dbis = []
