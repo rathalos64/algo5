@@ -11,10 +11,10 @@ import argparse
 import numpy as np
 from matplotlib import pyplot as plt
 
-from kmeans.kmeans import Kmeans
+from lib.kmeans import Kmeans
 
 class Application:
-	def __init__(self, N, D, K, min_size, max_size, dist):
+	def __init__(self, N, D, K, min_size, max_size):
 		self.N = N
 		self.D = D
 		self.K = K
@@ -22,18 +22,18 @@ class Application:
 		self.min_size = min_size
 		self.max_size = max_size
 
-		self.dist = dist
-
 def main():
 	parser = argparse.ArgumentParser(description='K-means clustering')
 
 	# define command line arguments
 	parser.add_argument("-D", type=int, metavar="<D>", action="store", default=2, dest="D",
-		help="dimensionality of data")
+		help="dimensionality of data (default 2)")
 	parser.add_argument("-min", type=float, metavar="<MIN>", action="store", default=0.0,
 		dest="min_size", help="the minimum threshold for the generated data")
 	parser.add_argument("-max", type=float, metavar="<MAX>", action="store", default=10000.0,
 		dest="max_size", help="the maximum threshold for the generated data")
+	parser.add_argument("-max_iter", type=int, metavar="<MAX_ITER>", action="store", default=300,
+		dest="max_iter", help="the maximum number of iterations for kmeans")
 	parser.add_argument("-plot", action="store_true", default=False, 
 		dest="plot", help="create / save plots on every iteration (if D == 2)")
 	parser.add_argument("-plot_path", metavar="<PATH>", action="store", default="iterations", 
@@ -52,8 +52,6 @@ def main():
 
 		min_size = args.min_size,
 		max_size = args.max_size,
-
-		dist 	= euclidian_distance,
 	)
 
 	# create plot directory
@@ -64,7 +62,7 @@ def main():
 		os.makedirs(path, exist_ok=False)
 
 	data = np.random.uniform(low=app.min_size, high=app.max_size, size=(app.N,app.D))
-	kmeans = Kmeans(data, app.K, app.D, euclidian_distance)
+	kmeans = Kmeans(data, app.K, app.D, "euclidian", args.max_iter)
 
 	print("============================================================")
 	print("[i] Starting k-means algorithm")
@@ -109,7 +107,7 @@ def main():
 
 	print("============================================================")
 	print(f"[i] Quality measures for k = {app.K}")
-
+	print(f"# Number of iterations: {kmeans.get_n_iter()}")
 	print(f"# Empty clusters: {len(kmeans.get_empty_clusters())}")
 	print(f"# [SSE] Sum of Squared Errors: {kmeans.get_sse()}")
 	print(f"# [DBI] Davies Bouldin Index: {kmeans.get_dbi()}")
@@ -138,13 +136,6 @@ def save_2d_graph(i, clusters, path, texts=[]):
 		plt.ylabel("y")
 		plt.title(f"{i} iteration")
 		plt.savefig(f"{path}/{i}.png", bbox_inches="tight")
-
-def euclidian_distance(x, y, d):
-	dist = 0
-	for i in range(0, d):
-		dist += math.pow(y[i] - x[i], 2)
-
-	return math.sqrt(dist)
 
 if __name__ == "__main__":
 	main()

@@ -2,25 +2,41 @@
 
 import random
 import math
+
 import numpy as np
+
 from .cluster import Clusters
-from .cluster import Cluster 
+from .cluster import Cluster
+from .distance import Distance
 
 class Kmeans:
-	def __init__(self, data, K, D, dist):
+	def __init__(self, data, K, D, dist = "euclidian", max_iter = 300):
 		self.data = data
 		self.K = K
 		self.D = D
-		self.dist = dist
+		self.dist = Distance.get_distance_method(dist)
+
+		self.iter = 0
+		self.max_iter = max_iter
 
 		self.centers = []
 		self.clusters = None
 
 	def set_parameters(self, **kwargs):
-		self.data = kwargs["data"] if kwargs.get("data") != None else self.data
-		self.K = 	kwargs["K"] if kwargs.get("K") != None else self.K
-		self.D = 	kwargs["D"] if kwargs.get("D") != None else self.D
-		self.dist = kwargs["dist"] if kwargs.get("dist") != None else self.dist
+		if kwargs.get("data") != None:
+			self.data = kwargs.get("data")
+
+		if kwargs.get("K") != None:
+			self.K = kwargs.get("K")
+
+		if kwargs.get("D") != None:
+			self.D = kwargs.get("D")
+
+		if kwargs.get("dist") != None:
+			self.dist = Distance.get_distance_method(kwargs.get("dist"))	
+			
+		if kwargs.get("max_iter") != None:
+			self.max_iter = kwargs.get("max_iter")
 
 	def clear(self):
 		for cluster in self.clusters:
@@ -42,10 +58,12 @@ class Kmeans:
 			))
 
 	def run(self):
-		bestmqe = -1
-		i = 0
+		# set to infinity
+		bestmqe = float("inf")
+		mqe = 0
+		self.iter = 0
 
-		while True:
+		while self.iter < self.max_iter:
 			self.clear()
 
 			# assign observations to cluster
@@ -63,21 +81,22 @@ class Kmeans:
 				error += cluster.approximation_error(self.dist, self.D)
 			mqe = error / len(self.data)
 
-			if mqe >= bestmqe and bestmqe != -1:
+			if mqe >= bestmqe:
 				break
 
-			if mqe < bestmqe or bestmqe == -1:
+			if mqe < bestmqe:
 				bestmqe = mqe
 
-			i = i + 1
+			self.iter = self.iter + 1
 
 	# generator function
 	def run_iter(self):
-		bestmqe = -1
+		# set to infinity
+		bestmqe = float("inf")
 		mqe = 0
-		i = 0
+		self.iter = 0
 
-		while True:
+		while self.iter < self.max_iter:
 			self.clear()
 
 			# assign observations to cluster
@@ -98,17 +117,21 @@ class Kmeans:
 			# yield result after calculating means and MQE
 			yield [self.clusters, mqe]
 
-			if mqe >= bestmqe and bestmqe != -1:
+			if mqe >= bestmqe:
 				break
 
-			if mqe < bestmqe or bestmqe == -1:
+			if mqe < bestmqe:
 				bestmqe = mqe
 
-			i = i + 1
+			self.iter = self.iter + 1
 
 	# ================================================================================================
 	# Quality measures
 	# ================================================================================================
+
+	# get_n_iter gets the number of iterations happened during running kmeans
+	def get_n_iter(self):
+		return self.iter + 1
 
 	# get_empty_clusters gets the empty clusters
 	def get_empty_clusters(self):
