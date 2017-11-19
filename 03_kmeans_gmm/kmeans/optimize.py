@@ -1,104 +1,170 @@
 #!/usr/bin/env
 
-import numpy as np
 import math
-from matplotlib import pyplot as pl
+import argparse
+import os
+import shutil
 
-from kmeans.kmeans import Kmeans
+import numpy as np
+from matplotlib import pyplot as plt
+
+from lib.kmeans import Kmeans
+
+class Application:
+	def __init__(self, N, D, K_range, min_size, max_size):
+		self.N = N
+		self.D = D
+		self.K_range = K_range
+
+		self.min_size = min_size
+		self.max_size = max_size
 
 def main():
-	data = np.random.uniform(low=0.0, high=1000.0, size=(1000,2))
+	parser = argparse.ArgumentParser(description='K-means k optimization')
 
-	kmeans = Kmeans(data, 1, len(data[0]), euclidian_distance)
+	# define command line arguments
+	parser.add_argument("-D", type=int, metavar="<D>", action="store", default=2, dest="D",
+		help="dimensionality of data (default 2)")
+	parser.add_argument("-min", type=float, metavar="<MIN>", action="store", default=0.0,
+		dest="min_size", help="the minimum threshold for the generated data")
+	parser.add_argument("-max", type=float, metavar="<MAX>", action="store", default=10000.0,
+		dest="max_size", help="the maximum threshold for the generated data")
+	parser.add_argument("-max_iter", type=int, metavar="<MAX_ITER>", action="store", default=300,
+		dest="max_iter", help="the maximum number of iterations for kmeans")
+	parser.add_argument("-plot", action="store_true", default=False, 
+		dest="plot", help="create / save optimization plots")
+	parser.add_argument("-plot_path", metavar="<PATH>", action="store", default="optimization", 
+		dest="plot_path",
+		help="path for optimization plots")
+	parser.add_argument("-N", type=int, metavar="<N>", action="store", required=True, dest="N",
+		help="number of samples taken randomly from a uniform distribution")
+	parser.add_argument("-K", type=str, metavar="<K_FROM-K_TO>", default="2-20", dest="K_range", 
+		help="the range of clusters to be tested")
+	args = parser.parse_args()
 
-	kmin = 2
-	kmax = 20
-	k_range = range(kmin, kmax)
+	k_range = args.K_range.split("-")
 
-	dbis = []
-	sses = []
-	c_empty = []
-	bics = []
-	aics = []
-	for i, k in enumerate(k_range):	
+	# define application
+	app = Application(
+		D 		= args.D,
+		N		= args.N,
+		K_range = range(int(k_range[0]), int(k_range[1])),
+
+		min_size = args.min_size,
+		max_size = args.max_size,
+	)
+
+	# create plot directory
+	if app.D == 2 and args.plot:
+		path = args.plot_path
+		if os.path.exists(path):
+			shutil.rmtree(path)
+		os.makedirs(path, exist_ok=False)
+
+	data = np.random.uniform(low=app.min_size, high=app.max_size, size=(app.N,app.D))
+	kmeans = Kmeans(data, 0, app.D, "euclidian", args.max_iter)
+
+	measures = {
+		"DBI": {"values": [], "xlabel": "K", "ylabel": "DBI", "title": "Davies-Bouldin Index"},
+		"SSE": {"values": [], "xlabel": "K", "ylabel": "SSE", "title": "Sum of Squared Error"},
+		"EC": {"values": [], "xlabel": "K", "ylabel": "Empty Clusters", "title": "Number of Empty Clusters"},
+		"IT": {"values": [], "xlabel": "K", "ylabel": "Iterations", "title": "Number of Iterations"},
+		"AICBIC": {"values": {"BIC": [], "AIC": []}, "xlabel": "K", "ylabel": "Criteria Value", "title": "BIC & AIC"}
+	}
+
+	k_min = int(k_range[0])
+
+	print("============================================================")
+	print("[i] Optimizing k for k-means algorithm")
+	print(f"# Number of samples from uniform distribution: {app.N}")
+	print(f"# Min size: {app.min_size}")
+	print(f"# Max size: {app.max_size}")
+	print(f"# Dimensionality of data: {app.D}")
+	print(f"# Clustering range: {args.K_range}")
+	print("============================================================")
+
+	for i, k in enumerate(app.K_range):	
+		print(f"## K = {k}")
+
 		kmeans.set_parameters(K=k)
 		kmeans.seed()
 		kmeans.run()
-		dbis.append([kmin+i, kmeans.get_dbi()])
-		sses.append([kmin+i, kmeans.get_sse()])
-		c_empty.append([kmin+i, len(kmeans.get_empty_clusters())])
-		bics.append([kmin+i, kmeans.get_bic()])
-		aics.append([kmin+i, kmeans.get_aic()])
 
-	fig1 = pl.figure()
-	ax1 = fig1.add_subplot(111)
-	for cluster in kmeans.clusters:
-		if len(cluster.observations) == 0:
-			continue
+		dbi = kmeans.get_dbi()
+		print(f"> Davies-Bouldin Index (DBI): {dbi}")
 
-		observations = np.array(cluster.observations)
+		sse = kmeans.get_sse()
+		print(f"> Sum of Squared Error (SSE): {sse}")
+
+		aic = kmeans.get_aic()
+		print(f"> Akaike Information Criteria (AIC): {aic}")
+
+		bic = kmeans.get_bic()
+		print(f"> Baysian Information Criteria (BIC): {bic}")
+
+		ec = len(kmeans.get_empty_clusters())
+		print(f"> Number of Empty Clusters: {ec}")
+
+		it = kmeans.get_n_iter()
+		print(f"> Number of Iterations: {it}")
+
+		if app.D == 2 and args.plot:
+			measures["DBI"]["values"].append([k_min+i, dbi])
+			measures["SSE"]["values"].append([k_min+i, sse])
+			measures["EC"]["values"].append([k_min+i, ec])
+			measures["IT"]["values"].append([k_min+i, it])
+			measures["AICBIC"]["values"]["BIC"].append([k_min+i, bic])
+			measures["AICBIC"]["values"]["AIC"].append([k_min+i, aic])
+
+		print("============================================================")
+
+	if app.D == 2 and args.plot:
+		for key, measure in measures.items():
+			if key == "AICBIC":
+				aic_values = np.array(measure["values"]["AIC"])
+				bic_values = np.array(measure["values"]["BIC"])
+				fig = plt.figure()
+				ax = fig.add_subplot(111)
+				ax.plot(aic_values.T[0], aic_values.T[1], label="BIC", marker='o', markersize=4)
+				ax.plot(bic_values.T[0], bic_values.T[1], label="AIC", marker='o', markersize=4)
+				ax.legend()
+
+				# disable scientific notation (e.g 1xe^4)
+				ax.get_xaxis().get_major_formatter().set_scientific(False)
+				ax.get_yaxis().get_major_formatter().set_scientific(False)
+
+				plt.title(measure["title"])
+				plt.xlabel(measure["xlabel"])
+				plt.ylabel(measure["ylabel"])
+
+				plt.savefig(f"{path}/{key.lower()}.png", bbox_inches="tight")
+				continue
+
+			values = np.array(measure["values"])
+			fig = plt.figure()
+			ax = fig.add_subplot(111)
+			ax.plot(values.T[0], values.T[1], marker='o', markersize=4)
+
+			# disable scientific notation (e.g 1xe^4)
+			ax.get_xaxis().get_major_formatter().set_scientific(False)
+			ax.get_yaxis().get_major_formatter().set_scientific(False)
+
+			plt.title(measure["title"])
+			plt.xlabel(measure["xlabel"])
+			plt.ylabel(measure["ylabel"])
+
+			plt.savefig(f"{path}/{key.lower()}.png", bbox_inches="tight")
+
+	# fig1 = plt.figure()
+	# ax1 = fig1.add_subplot(111)
+	# for cluster in kmeans.clusters:
+	# 	if len(cluster.observations) == 0:
+	# 		continue
+
+	# 	observations = np.array(cluster.observations)
 		
-		ax1.scatter(observations.T[0], observations.T[1], s=50.0, marker="o", label=cluster.id)
-		ax1.scatter(cluster.mean[0], cluster.mean[1], s=25.0, marker="x", c="black")
-
-	pl.title("Data")
-	pl.xlabel("x")
-	pl.ylabel("y")
-
-	# DBI
-	dbis = np.array(dbis)
-	fig2 = pl.figure()
-	ax2 = fig2.add_subplot(111)
-	ax2.plot(dbis.T[0], dbis.T[1])
-
-	pl.title("Davies Bouldin Index")
-	pl.xlabel("K")
-	pl.ylabel("DBI")
-
-	# SSE
-	sses = np.array(sses)
-	fig3 = pl.figure()
-	ax3 = fig3.add_subplot(111)
-	ax3.plot(sses.T[0], sses.T[1])
-
-	pl.title("Sum of Squared Error")
-	pl.xlabel("K")
-	pl.ylabel("SSE")
-
-	ax3.get_xaxis().get_major_formatter().set_scientific(False)
-	ax3.get_yaxis().get_major_formatter().set_scientific(False)
-
-	# Empty cluster
-	c_empty = np.array(c_empty)
-	fig4 = pl.figure()
-	ax4 = fig4.add_subplot(111)
-	ax4.plot(c_empty.T[0], c_empty.T[1])
-
-	pl.title("Number of empty clusters")
-	pl.xlabel("K")
-	pl.ylabel("|Empty Cs|")
-
-	# BIC & AIC
-	bics = np.array(bics)
-	aics = np.array(aics)
-	fig5 = pl.figure()
-	ax5 = fig5.add_subplot(111)
-	ax5.plot(bics.T[0], bics.T[1], label="BIC", marker='o', markersize=4)
-	ax5.plot(aics.T[0], aics.T[1], label="AIC", marker='o', markersize=4)
-	ax5.legend()
-
-	pl.title("BIC & AIC")
-	pl.xlabel("K")
-	pl.ylabel("Criteria value")
-
-	pl.show()
-
-def euclidian_distance(x, y, d):
-	dist = 0
-	for i in range(0, d):
-		dist += math.pow(y[i] - x[i], 2)
-
-	return math.sqrt(dist)
+	# 	ax1.scatter(observations.T[0], observations.T[1], s=50.0, marker="o", label=cluster.id)
+	# 	ax1.scatter(cluster.mean[0], cluster.mean[1], s=25.0, marker="x", c="black")
 
 if __name__ == "__main__":
 	main()
