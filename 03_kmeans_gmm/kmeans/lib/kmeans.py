@@ -16,6 +16,8 @@ class Kmeans:
 		self.D = D
 		self.dist = Distance.get_distance_method(dist)
 
+		self.mqe = 0
+
 		self.iter = 0
 		self.max_iter = max_iter
 
@@ -60,7 +62,7 @@ class Kmeans:
 	def run(self):
 		# set to infinity
 		bestmqe = float("inf")
-		mqe = 0
+		self.mqe = 0
 		self.iter = 0
 
 		while self.iter < self.max_iter:
@@ -79,13 +81,14 @@ class Kmeans:
 			error = 0
 			for cluster in self.clusters:
 				error += cluster.approximation_error(self.dist, self.D)
-			mqe = error / len(self.data)
+			self.mqe = error / len(self.data)
 
-			if mqe >= bestmqe:
+			if self.mqe >= bestmqe:
+				self.mqe = bestmqe
 				break
 
-			if mqe < bestmqe:
-				bestmqe = mqe
+			if self.mqe < bestmqe:
+				bestmqe = self.mqe
 
 			self.iter = self.iter + 1
 
@@ -93,7 +96,7 @@ class Kmeans:
 	def run_iter(self):
 		# set to infinity
 		bestmqe = float("inf")
-		mqe = 0
+		self.mqe = 0
 		self.iter = 0
 
 		while self.iter < self.max_iter:
@@ -112,16 +115,17 @@ class Kmeans:
 			error = 0
 			for cluster in self.clusters:
 				error += cluster.approximation_error(self.dist, self.D)
-			mqe = error / len(self.data)
+			self.mqe = error / len(self.data)
 
 			# yield result after calculating means and MQE
-			yield [self.clusters, mqe]
+			yield [self.clusters, self.mqe]
 
-			if mqe >= bestmqe:
+			if self.mqe >= bestmqe:
+				self.mqe = bestmqe
 				break
 
-			if mqe < bestmqe:
-				bestmqe = mqe
+			if self.mqe < bestmqe:
+				bestmqe = self.mqe
 
 			self.iter = self.iter + 1
 
@@ -136,6 +140,10 @@ class Kmeans:
 	# get_empty_clusters gets the empty clusters
 	def get_empty_clusters(self):
 		return list(filter(lambda x: len(x.observations) == 0, self.clusters))
+
+	# get_mqe calculates the mean quantisation error (MQE) for the clustering 
+	def get_mqe(self):
+		return self.mqe
 
 	# get_dbi calculates the Davies - Bouldin Index (DB Index)
 	# It assesses the used K's over how many K's actually exist in the data.

@@ -109,8 +109,9 @@ def main():
 	print(f"[i] Quality measures for k = {app.K}")
 	print(f"# Number of iterations: {kmeans.get_n_iter()}")
 	print(f"# Empty clusters: {len(kmeans.get_empty_clusters())}")
-	print(f"# [SSE] Sum of Squared Errors: {kmeans.get_sse()}")
+	print(f"# [MQE] Mean Quantisation Error: {kmeans.get_mqe()}")
 	print(f"# [DBI] Davies Bouldin Index: {kmeans.get_dbi()}")
+	print(f"# [SSE] Sum of Squared Errors: {kmeans.get_sse()}")
 	print(f"# [AIC] Akaike Information Criterion: {kmeans.get_aic()}")
 	print(f"# [BIC] Baysian Information Criterion: {kmeans.get_bic()}")
 

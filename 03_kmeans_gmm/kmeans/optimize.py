@@ -1,6 +1,5 @@
 #!/usr/bin/env
 
-import math
 import argparse
 import os
 import shutil
@@ -55,7 +54,7 @@ def main():
 	)
 
 	# create plot directory
-	if app.D == 2 and args.plot:
+	if args.plot:
 		path = args.plot_path
 		if os.path.exists(path):
 			shutil.rmtree(path)
@@ -65,6 +64,7 @@ def main():
 	kmeans = Kmeans(data, 0, app.D, "euclidian", args.max_iter)
 
 	measures = {
+		"MQE": {"values": [], "xlabel": "K", "ylabel": "MQE", "title": "Mean Quantisation Error"},
 		"DBI": {"values": [], "xlabel": "K", "ylabel": "DBI", "title": "Davies-Bouldin Index"},
 		"SSE": {"values": [], "xlabel": "K", "ylabel": "SSE", "title": "Sum of Squared Error"},
 		"EC": {"values": [], "xlabel": "K", "ylabel": "Empty Clusters", "title": "Number of Empty Clusters"},
@@ -90,6 +90,9 @@ def main():
 		kmeans.seed()
 		kmeans.run()
 
+		mqe = kmeans.get_mqe()
+		print(f"> Mean Quantisation Error (MQE): {mqe}")
+
 		dbi = kmeans.get_dbi()
 		print(f"> Davies-Bouldin Index (DBI): {dbi}")
 
@@ -108,7 +111,8 @@ def main():
 		it = kmeans.get_n_iter()
 		print(f"> Number of Iterations: {it}")
 
-		if app.D == 2 and args.plot:
+		if args.plot:
+			measures["MQE"]["values"].append([k_min+i, mqe])
 			measures["DBI"]["values"].append([k_min+i, dbi])
 			measures["SSE"]["values"].append([k_min+i, sse])
 			measures["EC"]["values"].append([k_min+i, ec])
@@ -118,7 +122,7 @@ def main():
 
 		print("============================================================")
 
-	if app.D == 2 and args.plot:
+	if args.plot:
 		for key, measure in measures.items():
 			if key == "AICBIC":
 				aic_values = np.array(measure["values"]["AIC"])
