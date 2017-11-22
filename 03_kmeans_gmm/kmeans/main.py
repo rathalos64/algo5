@@ -2,6 +2,14 @@
 #
 # Example call:
 # $ python main.py -plot -N 100 5
+#
+# TODO: 
+# * uniform vs gaussian mixture model
+#	given as paramters
+#
+# * parameter per json file for uniform and gaussian mixture model
+#
+# * 3D-dimensional plotting
 
 import os
 import math
@@ -9,6 +17,7 @@ import shutil
 import argparse
 
 import numpy as np
+from sklearn.datasets import make_blobs
 from matplotlib import pyplot as plt
 
 from lib.kmeans import Kmeans
@@ -61,7 +70,20 @@ def main():
 			shutil.rmtree(path)
 		os.makedirs(path, exist_ok=False)
 
-	data = np.random.uniform(low=app.min_size, high=app.max_size, size=(app.N,app.D))
+	data, _ = make_blobs(
+		n_samples=app.N, 
+		n_features=app.D, 
+		cluster_std=5.0, 
+		center_box=(-10.0, 10.0), 
+		centers=10
+	)
+	#data = np.random.uniform(low=app.min_size, high=app.max_size, size=(app.N,app.D))
+	# #data = np.random.normal(size=(app.N,app.D))
+	# data1 = np.random.normal(loc=-16.0, scale=1.0, size=(app.N,app.D))
+	# data2 = np.random.normal(loc=100.0, scale=20.0, size=(app.N,app.D))
+	# data = np.append(data1, data2, axis=0)
+
+
 	kmeans = Kmeans(data, app.K, app.D, "euclidian", args.max_iter)
 
 	print("============================================================")
@@ -86,8 +108,8 @@ def main():
 
 		fig1 = plt.figure()
 		ax1 = fig1.add_subplot(111)
-		ax1.scatter(data.T[0], data.T[1], s=50.0, marker="o", c="orange")
-		ax1.scatter(means.T[0], means.T[1], s=25.0, marker="x", c="black")
+		ax1.scatter(data.T[0], data.T[1], s=25.0, marker=".", c="orange")
+		ax1.scatter(means.T[0], means.T[1], s=12.5, marker="x", c="black")
 
 		plt.title("Dataset")
 		plt.xlabel("x")
@@ -110,7 +132,8 @@ def main():
 	print(f"# Number of iterations: {kmeans.get_n_iter()}")
 	print(f"# Empty clusters: {len(kmeans.get_empty_clusters())}")
 	print(f"# [MQE] Mean Quantisation Error: {kmeans.get_mqe()}")
-	print(f"# [DBI] Davies Bouldin Index: {kmeans.get_dbi()}")
+	if app.K > 1:
+		print(f"# [DBI] Davies Bouldin Index: {kmeans.get_dbi()}")
 	print(f"# [SSE] Sum of Squared Errors: {kmeans.get_sse()}")
 	print(f"# [AIC] Akaike Information Criterion: {kmeans.get_aic()}")
 	print(f"# [BIC] Baysian Information Criterion: {kmeans.get_bic()}")
@@ -129,8 +152,8 @@ def save_2d_graph(i, clusters, path, texts=[]):
 			continue
 
 		observations = np.array(cluster.observations)
-		ax1.scatter(observations.T[0], observations.T[1], s=50.0, marker="o")
-		ax1.scatter(cluster.mean[0], cluster.mean[1], s=25.0, marker="x", c="black")
+		ax1.scatter(observations.T[0], observations.T[1], s=25.0, marker=".")
+		ax1.scatter(cluster.mean[0], cluster.mean[1], s=12.5, marker="x", c="black")
 
 		plt.title("Dataset")
 		plt.xlabel("x")

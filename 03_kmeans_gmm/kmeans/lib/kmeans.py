@@ -190,7 +190,7 @@ class Kmeans:
 	# https://github.com/bobhancock/goxmeans/blob/master/doc/BIC_notes.pdf, he mentions
 	# the flaws of the original authors formulation for BIC.
 	#
-	# As a sidenote, the original stackoverflow post can be found at http://bit.ly/2zXoEf2.
+	# As a sidenote, the original stackoverflow post can be found at https://stats.stackexchange.com/a/146539.
 	def get_bic(self):
 		ll = self.__loglikelihood()
 		params = self.__free_params()
@@ -208,7 +208,7 @@ class Kmeans:
 		aic = (params - ll)
 		return aic
 
-	def __free_params(self):
+	def __free_params(self):	
 		return (self.K - 1) * (self.K * self.D) + 1
 
 	def __loglikelihood(self):

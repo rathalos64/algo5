@@ -1,5 +1,15 @@
 #!/usr/bin/env
 
+# TODO: 
+# * uniform vs gaussian mixture model
+#	given as paramters
+#
+# * parameter per json file for uniform and gaussian mixture model
+#
+# * for every run with given k, plot result of data with clusters into file
+#
+# * 3D-dimensional plotting
+
 import argparse
 import os
 import shutil
