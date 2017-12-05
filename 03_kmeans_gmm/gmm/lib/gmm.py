@@ -1,6 +1,9 @@
 #!/usr/bin/env python
 
+import math
+
 import numpy as np
+from functools import reduce
 
 # ParameterGMMComponent stores the parameter for a component
 # of a Gaussian Mixture Model. Mostly a Gaussian Mixture Model
@@ -62,3 +65,29 @@ class ParameterGMMComponent():
 			self.mean,
 			self.cov.tolist()
 		)
+
+class MultivariateNormal():
+	# pdf calculates the density of a given observation x based
+	# on a multivariate normal distribution parametrised by the mean and the covariance matrix 
+	@staticmethod
+	def pdf(x, mean, cov):
+		D = len(x)
+
+		# for python: * is element-wise multiplication, not matrix multiplication
+		# use dot instead
+		mahalanobis = (x - mean).T.dot(np.linalg.inv(cov)).dot((x - mean))
+		normalizing = math.pow(2 * math.pi, D / 2) * math.pow(np.linalg.det(cov), 2)
+		
+		return math.exp(-0.5 * mahalanobis) / normalizing
+
+class GaussianMixtureModel():
+	@staticmethod
+	def _likelihood(x, components):
+		likelihood = 0
+		for component in components:
+			likelihood += (component.weight * MultivariateNormal.pdf(x, component.mean, component.cov))
+		return likelihood
+
+	@staticmethod
+	def loglikelihood(X, components):
+		return reduce(lambda acc, x: acc + math.log(GaussianMixtureModel._likelihood(x, components)), X, 0)

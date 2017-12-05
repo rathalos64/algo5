@@ -2,11 +2,11 @@
 
 # ParameterVector stores a number of parameters lists
 # for a specific problem. Mathematically it can be imagined
-# as a vector of thetas ([θ1, θ2, θ3, ...]), where θ 
+# as a vector of thetas ([θ1, θ2, θ3, ...]), where θ is parameter list
 # consists of the actual parameter. For example
 #
 # Multivariate Normal Distribution
-#	ParameterVector = [θ], with θ = {μ, Σ}
+#	ParameterVector = [θ1], with θ1 = {μ, Σ}
 #
 # Gaussian Mixture Model
 #	ParameterVector = [θ1, θ2, ..] with
@@ -17,18 +17,24 @@
 # individually. The actual mutation will be handled by the parameter lists
 # itself. (must implemented "mutate(sigma)" method).
 class ParameterVector():
-	def __init__(self, parameters_lists):
-		self.parameters_lists = parameters_lists
+	def __init__(self, parameter_lists):
+		self.parameter_lists = parameter_lists
+
+	def __iter__(self):
+		return iter(self.parameter_lists)
+
+	def __getitem__(self, key):
+		return self.parameter_lists[key]
 
 	# mutate mutates every parameter list individually,
 	# with a given σ (refers to mutation-width)
 	def mutate(self, sigma):
-		for parameter_list in self.parameters_lists:
+		for parameter_list in self.parameter_lists:
 			parameter_list.mutate(sigma)
 
 	def __str__(self):
 		s = "ParameterVector (\n"
-		for parameter_list in self.parameters_lists:
+		for parameter_list in self.parameter_lists:
 			s += "\t" + str(parameter_list) + "\n"
 		s += ")"
 		return s
@@ -44,8 +50,8 @@ class Solution():
 	def mutate(self):
 		self.parameter_vector.mutate(self.sigma)
 
-	def evaluate(self):
-		return self.fitness_f(self.parameter_vector)
+	def evaluate(self, X):
+		return self.fitness_f(X, self.parameter_vector)
 
 # class EvolutionStrategy():
 
