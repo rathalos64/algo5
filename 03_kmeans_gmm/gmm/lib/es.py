@@ -45,7 +45,7 @@ class ParameterVector():
 		s = "ParameterVector (\n"
 		for parameter_list in self.parameter_lists:
 			s += "\t" + str(parameter_list) + "\n"
-		s += ")"
+		s += "\t)"
 		return s
 
 # Solution resembles a solution candidate as defined within a Evolution Strategy
@@ -83,12 +83,12 @@ class EvolutionStrategy():
 		rho,
 		lamd,
 		es_type,
-		sigma,
-		tau,
-		max_iter,
-		min_sigma,
 		parameter_vectors,
-		fitness_f):
+		fitness_f,
+		sigma=0.05,
+		tau=0.5,
+		max_iter=-1,
+		min_sigma=0.01):
 
 		############### [ES Base Parameter] ###############
 
@@ -157,6 +157,20 @@ class EvolutionStrategy():
 		for parameter_vector in self.parameter_vectors:
 			self.solutions.append(
 				Solution(parameter_vector, self.sigma, self.k, self.fitness_f))
+
+	def __str__(self):
+		s = "EvolutionStrategy (\n"
+		s += "\tμ = " + str(self.mu) + "\n"
+		s += "\tρ = " + str(self.rho) + "\n"
+		s += "\tλ = " + str(self.lamd) + "\n"
+		s += "\ttype = '" + self.es_type + "'\n"
+		s += "\tκ = " + str(self.k) + "\n"
+		s += "\tσ = " + str(self.sigma) + "\n"
+		s += "\tτ = " + str(self.tau) + "\n"
+		s += "\tmax_iter = " + str(self.max_iter) + "\n"
+		s += "\tmin_sigma = " + str(self.min_sigma) + "\n"
+		s += ")"
+		return s
 
 	def validate_parameter(self):
 		validation_result = {}

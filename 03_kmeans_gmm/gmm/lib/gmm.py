@@ -58,11 +58,11 @@ class ParameterGMMComponent():
 		self.cov = self.cov + normal
 
 	def __str__(self):
-		return ("GMM Component (\n"
-		"\t~~ ω: {}\n" 
-		"\t~~ μ: {}\n"
-		"\t~~ Σ: {}\n"
-		"\t)").format(
+		return ("\tGMM Component (\n"
+		"\t\t   ω: {}\n" 
+		"\t\t   μ: {}\n"
+		"\t\t   Σ: {}\n"
+		"\t\t)").format(
 			self.weight, 
 			self.mean,
 			self.cov.tolist()
