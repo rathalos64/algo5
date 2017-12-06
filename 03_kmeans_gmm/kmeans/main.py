@@ -77,12 +77,6 @@ def main():
 		center_box=(-10.0, 10.0), 
 		centers=10
 	)
-	#data = np.random.uniform(low=app.min_size, high=app.max_size, size=(app.N,app.D))
-	# #data = np.random.normal(size=(app.N,app.D))
-	# data1 = np.random.normal(loc=-16.0, scale=1.0, size=(app.N,app.D))
-	# data2 = np.random.normal(loc=100.0, scale=20.0, size=(app.N,app.D))
-	# data = np.append(data1, data2, axis=0)
-
 
 	kmeans = Kmeans(data, app.K, app.D, "euclidian", args.max_iter)
 

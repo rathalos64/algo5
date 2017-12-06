@@ -3,7 +3,6 @@
 import copy
 
 import numpy as np
-import pandas as pd
 import matplotlib.pyplot as plt
 from sklearn.datasets.samples_generator import make_blobs
 
@@ -19,14 +18,25 @@ def main():
 	# path for saving the optimized loglikelihoods
 	# for a range of Ks
 	img_optimization = "optimization.png"
+	img_data = "data.png"
 
 	# data parameter
 	N = 500
 	D = 2
 	C = 6
 
-	samples = generate_data(N, D, C)
-	df = pd.DataFrame.from_records(samples, columns=["X", "Y"])
+	samples, labels = generate_data(N, D, C)
+
+	# cluster data based on labels and save as picture
+	clusters = [[] for i in range(0, max(labels) + 1)]
+	for i in range(0, samples.shape[0]):
+		clusters[labels[i]].append(samples[i])
+
+	for cluster in clusters:
+		plt.plot(np.asarray(cluster).T[0], np.asarray(cluster).T[1], marker=".", linestyle="none")
+
+	plt.savefig(img_data)
+	print(f"[i] data saved to '{img_data}'")
 
 	# K components
 	K_min = 2
@@ -183,15 +193,14 @@ def main():
 # each belonging to each of C isotrophic Gaussian blobs
 def generate_data(N, D, C):
 	variances = [abs(np.random.normal()) for _ in range(0, C)]
-	
+
 	# generate samples
-	samples, _ = make_blobs(
+	return make_blobs(
         n_samples=N,
         n_features=D,
         centers=C,
         cluster_std=variances
     )
-	return samples
 
 # generate_param_vecs generates an initial list of parameter vector
 # which within the ES are each handled as solution candidates (mu).
