@@ -5,6 +5,8 @@ import math
 import numpy as np
 from functools import reduce
 
+from lib.utils import Utils
+
 # ParameterGMMComponent stores the parameter for a component
 # of a Gaussian Mixture Model. Mostly a Gaussian Mixture Model
 # consists for > 1 components (otherwise, it would a simple
@@ -66,9 +68,53 @@ class ParameterGMMComponent():
 			self.cov.tolist()
 		)
 
+class ParameterGMMComponents():
+	def __init__(self, components=[]):
+		self.components = components
+
+	def __iter__(self):
+		return iter(self.components)
+
+	def append(self, component):
+		self.components.append(component)
+
+	def normalize(self):
+		# normalize weights (should sum up to 1.0) by applying softmax
+		weights = [component.weight for component in self.components]
+		weights = Utils.apply_softmax(weights)
+
+		for i, _ in enumerate(weights):
+			self.components[i].weight = weights[i]
+
+		# equal covariances (should be the same)
+		covs = [component.cov for component in self.components]
+		for i, cov in enumerate(covs):
+
+			# get all indices all covariances in the matrix
+			# 
+			# np.triu_indices gets the indices upper triangle in the covariance matrix
+			# with that we get e.g covxy and covyx, which obviously should be the same
+			xs, ys = list(np.triu_indices(cov.shape[0], 1, m=cov.shape[1]))
+			xs = xs.reshape(len(xs), 1)
+			ys = ys.reshape(len(ys), 1)
+			target_indices = np.concatenate((xs, ys), axis=1)
+
+			# compare all covariances (covxy and covyx, covxz and covzx, ...)
+			for index in target_indices:
+				x = index[0]
+				y = index[1]
+				covariances = [cov[x][y], cov[y][x]]
+				
+				# pick randomly (uniformly) the future covariance for e.g covxy and covyx
+				target_covariance = np.random.choice(covariances)
+
+				# apply to original covariance matrix of ith component
+				self.components[i].cov[x][y] = target_covariance
+				self.components[i].cov[y][x] = target_covariance
+
 class MultivariateNormal():
 	# pdf calculates the density of a given observation x based
-	# on a multivariate normal distribution parametrised by the mean and the covariance matrix 
+	# on a multivariate normal distribution parametrised by the mean and the covariance matrix
 	@staticmethod
 	def pdf(x, mean, cov):
 		D = len(x)
@@ -77,8 +123,15 @@ class MultivariateNormal():
 		# use dot instead
 		mahalanobis = (x - mean).T.dot(np.linalg.inv(cov)).dot((x - mean))
 		normalizing = math.pow(2 * math.pi, D / 2) * math.pow(np.linalg.det(cov), 2)
-		
-		return math.exp(-0.5 * mahalanobis) / normalizing
+
+		# calling math.exp with high positive value (> ~720) results in
+		# floating point overflow
+		# https://stackoverflow.com/questions/36268077/overflow-math-range-error-for-log-or-exp
+		adjusted = -0.5 * mahalanobis
+		if adjusted > 0:
+			adjusted *= -1
+			
+		return math.exp(adjusted) / normalizing
 
 class GaussianMixtureModel():
 	@staticmethod
