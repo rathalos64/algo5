@@ -18,6 +18,19 @@ from lib.es import ParameterVector
 from lib.es import EvolutionStrategy
 
 def main():
+	# TODO:
+	# * ES params via command line args
+	# * run ES for k in [2, 20]
+	# * for every k, generate k components
+	# 		-> weight = 1/k
+	#		-> means = run KMeans with k
+	#		-> covs = np.cov(samples) ?
+	#
+	# * DBI for every k
+	#		-> instead of MQE, the determinate of cov
+	#
+	# ploooooootttttt!
+
 	sigma = 0.05
 
 	gmm_c = ParameterGMMComponent(
@@ -30,10 +43,10 @@ def main():
 	)
 
 	gmm_c1 = ParameterGMMComponent(
-		0.5, 
+		0.5,
 		np.asarray([5, 5]),
 		np.asarray([
-			[2, 1.0], 
+			[2, 1.0],
 			[1.0, 2]
 		])
 	)
@@ -86,63 +99,24 @@ def main():
 		print(validation_result)
 		return
 
+	sigmas = []
+	best_fitnesses = []
 	for generations_cnt in es.run_iter():
 		print(f"~~ {generations_cnt + 1} Generation")
 		print("# Best solution candidate")
 		print(es.best)
+		best_fitnesses.append(es.best.fitness)
+		sigmas.append(es.best.sigma)
 
-	# get best candidate
-	best = es.best
-	ellipses = []
-	for component in best.parameter_vector:
-		ellipses.append(cov_ellipse(component.cov, nsig=2))
+	fig = plt.figure()
+	ax = fig.add_subplot(111)
+	ax.set_ylim([min(best_fitnesses) - 200, 0])
+	plt.plot(range(0, len(best_fitnesses)), best_fitnesses, marker="o", markersize=4)
 
-	print(ellipses)
-
-	# draw estimated ellipsed
-	for i, component in enumerate(best.parameter_vector):
-		print(i)
-		ax.scatter(component.mean[0], component.mean[1], linestyle="None", c="b", marker="x")
-		
-		ellip = Ellipse(xy=component.mean, width=ellipses[i][0], height=ellipses[i][1], angle=ellipses[i][2])
-		ellip.set_facecolor('none')
-		ellip.set_edgecolor('black')
-		ax.add_artist(ellip)
+	fig = plt.figure()
+	plt.plot(range(0, len(best_fitnesses)), sigmas, marker="o", markersize=4)
 
 	plt.show()
-
-def cov_ellipse(cov, q=None, nsig=None, **kwargs):
-    """
-    Parameters
-    ----------
-    cov : (2, 2) array
-        Covariance matrix.
-    q : float, optional
-        Confidence level, should be in (0, 1)
-    nsig : int, optional
-        Confidence level in unit of standard deviations. 
-        E.g. 1 stands for 68.3% and 2 stands for 95.4%.
-
-    Returns
-    -------
-    width, height, rotation :
-         The lengths of two axises and the rotation angle in degree
-    for the ellipse.
-    """
-
-    if q is not None:
-        q = np.asarray(q)
-    elif nsig is not None:
-        q = 2 * norm.cdf(nsig) - 1
-    else:
-        raise ValueError('One of `q` and `nsig` should be specified.')
-    r2 = chi2.ppf(q, 2)
-
-    val, vec = np.linalg.eigh(cov); print(val)
-    width, height = 2 * np.sqrt(np.abs(val[:, None] * r2))
-    rotation = np.degrees(np.arctan2(*vec[::-1, 0]))
-
-    return [width, height, rotation]
 
 if __name__ == "__main__":
 	main()
