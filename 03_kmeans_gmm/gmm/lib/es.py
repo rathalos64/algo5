@@ -150,6 +150,9 @@ class EvolutionStrategy():
 		# init solutions
 		self._init_solutions()
 
+		# all generation iterations
+		self.generations_cnt = 0
+
 	def _init_solutions(self):
 		for parameter_vector in self.parameter_vectors:
 			self.solutions.append(
@@ -192,13 +195,13 @@ class EvolutionStrategy():
 
 	def run(self):
 		selection_pressure = self.lamd / self.mu
-		generations_cnt = 0
-		while generations_cnt != self.max_iter:
+		self.generations_cnt = 0
+		while self.generations_cnt != self.max_iter:
 			next_best = max(self.solutions, key=lambda solution: solution.evaluate(self.X))
 
 			# in order to compare the generation's best solution candidates
 			# as an abortion criteria, at least one generation must be created
-			if generations_cnt > 0:
+			if self.generations_cnt > 0:
 				if next_best.evaluate(self.X) < self.best.evaluate(self.X):
 					# print("[x] No improvement found in comparison to last generation")
 					break
@@ -245,17 +248,17 @@ class EvolutionStrategy():
 				# print("[x] sigma below min_sigma threshold")
 				break
 
-			generations_cnt += 1
+			self.generations_cnt += 1
 
 	def run_iter(self):
 		selection_pressure = self.lamd / self.mu
-		generations_cnt = 0
-		while generations_cnt != self.max_iter:
+		self.generations_cnt = 0
+		while self.generations_cnt != self.max_iter:
 			next_best = max(self.solutions, key=lambda solution: solution.evaluate(self.X))
 
 			# in order to compare the generation's best solution candidates
 			# as an abortion criteria, at least one generation must be created
-			if generations_cnt > 0:
+			if self.generations_cnt > 0:
 				if next_best.evaluate(self.X) < self.best.evaluate(self.X):
 					# print("[x] No improvement found in comparison to last generation")
 					break
@@ -264,7 +267,7 @@ class EvolutionStrategy():
 			self.best = next_best
 
 			# yield to user
-			yield(generations_cnt)
+			yield(self.generations_cnt)
 
 			# select uniformly ρ parents for the next generation
 			parents = []
@@ -305,7 +308,7 @@ class EvolutionStrategy():
 				# print("[x] sigma below min_sigma threshold")
 				break
 
-			generations_cnt += 1
+			self.generations_cnt += 1
 
 	# _adjust_sigma adapts σ based on the 1/5 success rule for mutants (children).
 	# For this, the adjustment parameter τ is used.
