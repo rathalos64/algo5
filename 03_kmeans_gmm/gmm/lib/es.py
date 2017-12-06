@@ -73,6 +73,8 @@ class Solution():
 		s += ")"
 		return s
 
+# EvolutionStrategy resembles an optimization technique for real-based values
+# taking its ideas from evolution
 class EvolutionStrategy():
 	TYPE_COMMA = ","
 	TYPE_PLUS = "+"
@@ -163,6 +165,7 @@ class EvolutionStrategy():
 		s += "\tμ = " + str(self.mu) + "\n"
 		s += "\tρ = " + str(self.rho) + "\n"
 		s += "\tλ = " + str(self.lamd) + "\n"
+		s += "\ts = " + str(self.mu) + "/" + str(self.lamd) + "\n"
 		s += "\ttype = '" + self.es_type + "'\n"
 		s += "\tκ = " + str(self.k) + "\n"
 		s += "\tσ = " + str(self.sigma) + "\n"
@@ -207,8 +210,9 @@ class EvolutionStrategy():
 
 		return True, validation_result
 
+	# run starts the evolution process, generating new children and mutating them
+	# for an undefined number of generations until an abortion criteria is matched
 	def run(self):
-		selection_pressure = self.lamd / self.mu
 		self.generations_cnt = 0
 		while self.generations_cnt != self.max_iter:
 			next_best = max(self.solutions, key=lambda solution: solution.evaluate(self.X))
@@ -217,7 +221,6 @@ class EvolutionStrategy():
 			# as an abortion criteria, at least one generation must be created
 			if self.generations_cnt > 0:
 				if next_best.evaluate(self.X) < self.best.evaluate(self.X):
-					# print("[x] No improvement found in comparison to last generation")
 					break
 
 			# set best solution candidate
@@ -259,13 +262,14 @@ class EvolutionStrategy():
 			self._adjust_sigma(children)
 		
 			if self.sigma <= self.min_sigma:
-				# print("[x] sigma below min_sigma threshold")
 				break
 
 			self.generations_cnt += 1
 
+	# run_iter is the generator function of the run method, yielding
+	# the current best solution candidate and the number of generations 
+	# on every iteration
 	def run_iter(self):
-		selection_pressure = self.lamd / self.mu
 		self.generations_cnt = 0
 		while self.generations_cnt != self.max_iter:
 			next_best = max(self.solutions, key=lambda solution: solution.evaluate(self.X))
@@ -274,7 +278,6 @@ class EvolutionStrategy():
 			# as an abortion criteria, at least one generation must be created
 			if self.generations_cnt > 0:
 				if next_best.evaluate(self.X) < self.best.evaluate(self.X):
-					# print("[x] No improvement found in comparison to last generation")
 					break
 
 			# set best solution candidate
@@ -319,7 +322,6 @@ class EvolutionStrategy():
 			self._adjust_sigma(children)
 		
 			if self.sigma <= self.min_sigma:
-				# print("[x] sigma below min_sigma threshold")
 				break
 
 			self.generations_cnt += 1
@@ -334,8 +336,6 @@ class EvolutionStrategy():
 		for mutant in mutants:
 			if mutant.evaluate(self.X) > self.best.evaluate(self.X):
 				s += 1
-
-		# print(f"{fifth} out of {self.lamd} should be successful; {s} are")
 
 		if s < fifth:
 			self.sigma *= self.tau

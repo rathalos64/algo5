@@ -1,14 +1,10 @@
 #!/usr/bin/env python
 
-import math
-import random
 import copy
 
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-from matplotlib.patches import Ellipse
-from functools import reduce
 from sklearn.datasets.samples_generator import make_blobs
 
 from lib.gmm import ParameterGMMComponent
@@ -20,20 +16,21 @@ from lib.es import EvolutionStrategy
 from kmeans.kmeans import Kmeans
 
 def main():
-	# target image for optimization
+	# path for saving the optimized loglikelihoods
+	# for a range of Ks
 	img_optimization = "optimization.png"
 
 	# data parameter
 	N = 500
 	D = 2
-	C = 3
+	C = 6
 
 	samples = generate_data(N, D, C)
 	df = pd.DataFrame.from_records(samples, columns=["X", "Y"])
 
 	# K components
 	K_min = 2
-	K_max = 10
+	K_max = 2
 	K_range = range(K_min, K_max+1)
 
 	# ES parameter
@@ -41,6 +38,9 @@ def main():
 	rho = 1
 	lamd = 5
 	sigma = 0.05
+	tau = 0.5
+	min_sigma = 0.01
+	max_iter = -1
 
 	# default ES in order to print it to console
 	es = EvolutionStrategy(
@@ -50,9 +50,17 @@ def main():
 		lamd,
 		EvolutionStrategy.TYPE_PLUS,
 		[],
-		None
+		None,
+		sigma=sigma,
+		tau=tau,
+		min_sigma=min_sigma,
+		max_iter=max_iter
 	)
-	
+
+	# whether to show the best solutions over a range of k's
+	# or for a fixed k all solution within each generation
+	show_generations = False
+
 	print("==========================================================")
 	print("# Parameter Optimization of GMMs with Evolution Strategies")
 	print("==========================================================")
@@ -73,7 +81,11 @@ def main():
 	print("==========================================================")
 	
 	# start optimization
+	# best_solutions appends all best solutions for each k
 	best_solutions = []
+
+	# generations appends every best solution of each generations with a fixed k
+	generations = []
 	for k in K_range:
 		print(f"## K = {k}")
 
@@ -82,13 +94,9 @@ def main():
 		kmeans.seed()
 		kmeans.run()
 		
-		# plt.plot(df["X"], df["Y"], marker=".", linestyle="none")
-		# plt.plot(kmeans.centers[0][0], kmeans.centers[0][1], marker="x", markersize=6)
-		# plt.plot(kmeans.centers[1][0], kmeans.centers[1][1], marker="x", markersize=6)
-		# plt.show()
-		# return
-
-		param_vecs = generate_param_vecs(samples, kmeans.centers, mu, k)
+		# variance is the detected variance in the data divided by k
+		variance = np.var(samples) / k
+		param_vecs = generate_param_vecs(kmeans.centers, variance, mu, k)
 
 		es = EvolutionStrategy(
 			samples,
@@ -97,7 +105,11 @@ def main():
 			lamd,
 			EvolutionStrategy.TYPE_PLUS,
 			param_vecs,
-			GaussianMixtureModel.loglikelihood
+			GaussianMixtureModel.loglikelihood,
+			sigma=sigma,
+			tau=tau,
+			min_sigma=min_sigma,
+			max_iter=max_iter
 		)
 		
 		ok, validation_result = es.validate_parameter()
@@ -105,36 +117,67 @@ def main():
 			print(validation_result)
 			return
 
-		es.run()
+		if show_generations is False:
+			es.run()
+			
+		generations = []
+		if show_generations is True:
+			for generations_cnt in es.run_iter():
+				print(f"~~ {generations_cnt + 1}th Generation")
+				print("# Best solution candidate")
+				print(es.best)
+				generations.append([es.best, generations_cnt])
+
 		print(f"# Best solution candidate after {es.generations_cnt + 1} generations")
 		print(es.best)
-		
-		# for generations_cnt in es.run_iter():
-		# 	print(f"~~ {generations_cnt + 1} Generation")
-		# 	print("# Best solution candidate")
-		# 	print(es.best)
+			
 		best_solutions.append([es.best, es.generations_cnt])
 
 		print("==========================================================")
 
 	# plot the fitness of each ES run with individual K
 	# show optimization progress
-	fitnesses = list(map(lambda solution: solution[0].fitness, best_solutions))
-	generation_cnts = list(map(lambda solution: solution[1], best_solutions))
-	
-	fig = plt.figure()
-	ax = fig.add_subplot(111)
-	plt.xlabel(f"K in [{K_min}, {K_max}]")
-	plt.ylabel("Loglikelihood L(X | h)")
-	plt.title("Optimizing GMM parameters for a given K with ES")
+	if show_generations is False:
+		fitnesses = list(map(lambda solution: solution[0].fitness, best_solutions))
+		generation_cnts = list(map(lambda solution: solution[1], best_solutions))
 
-	ax.set_ylim([min(fitnesses) - 500, 0])
-	plt.plot(K_range, fitnesses, marker="o", markersize=4)
-	for i, k in enumerate(K_range):
-		plt.annotate(generation_cnts[i], xy=(k, fitnesses[i] + 100))
+		fig = plt.figure(figsize=(10, 8))
+		ax = fig.add_subplot(111)
+		plt.xlabel(f"K in [{K_min}, {K_max}]")
+		plt.ylabel("Loglikelihood L(X | h)")
+		plt.title("Optimizing GMM parameters for a given K with ES")
+
+		ax.set_ylim([min(fitnesses) - 500, 0])
+		plt.plot(K_range, fitnesses, marker="o", markersize=4)
+		for i, k in enumerate(K_range):
+			plt.annotate(generation_cnts[i], xy=(k, fitnesses[i] + 100))
+
+		plt.text(0.72, 0.64, str(es).replace("\t", " " * 6), fontsize=10, transform=plt.gcf().transFigure)
+		plt.grid(True)
+		plt.subplots_adjust(right=0.7)
+
+	# plot the fitness of each generation for a fixed K
+	# show optimization progress
+	if show_generations is True:
+		fitnesses = list(map(lambda solution: solution[0].fitness, generations))
+		generation = list(map(lambda solution: solution[1], generations))
+
+		fig = plt.figure(figsize=(10, 8))
+		ax = fig.add_subplot(111)
+		plt.xlabel(f"K in [{K_min}, {K_max}]")
+		plt.ylabel("Loglikelihood L(X | h)")
+		plt.title("Optimizing GMM parameters for a given K with ES")
+
+		ax.set_ylim([min(fitnesses) - 500, 0])
+		plt.plot(generation, fitnesses, marker="o", markersize=4)
+
+		plt.text(0.72, 0.64, str(es).replace("\t", " " * 6), fontsize=10, transform=plt.gcf().transFigure)
+		plt.grid(True)
+		plt.subplots_adjust(right=0.7)
 
 	plt.savefig(img_optimization, bbox_inches="tight")
-	print(f"[i] saved to {img_optimization}")
+	print(f"[i] saved to '{img_optimization}'")
+	print(f"[i] thank you and goodnight")
 
 # generate_data creates with given parameter N data points in D-dimensional space
 # each belonging to each of C isotrophic Gaussian blobs
@@ -157,14 +200,14 @@ def generate_data(N, D, C):
 #
 # The initial ωs are calculated as 1 / k,
 # The initial μs are given by centers which were determined previously by Kmeans,
-# The initial Σs are estimated with numpy over the data
-def generate_param_vecs(samples, centers, mu, k):
+# The initial Σs are estimated with given variance and 0 covariance
+def generate_param_vecs(centers, variance, mu, k):
 	components = copy.deepcopy(ParameterGMMComponents())
 	for i in range(0, k):
 		components.append(ParameterGMMComponent(
 			1 / k,
 			np.asarray(centers[i]),
-			np.cov(samples.T)
+			np.asarray([[variance, 0], [0, variance]])
 		))
 
 	# create mu initial parameter vectors, which basically are the parents

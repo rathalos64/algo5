@@ -3,6 +3,7 @@
 import math
 import numpy as np
 
+# Utils contains several useful helper methods
 class Utils():
 
 	# softmax or also called normalized exponential function "squashes" a K-dimensional vector Z

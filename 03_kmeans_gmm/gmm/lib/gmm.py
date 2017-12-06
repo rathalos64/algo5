@@ -68,6 +68,8 @@ class ParameterGMMComponent():
 			self.cov.tolist()
 		)
 
+# ParameterGMMComponents stores a number of components
+# and therefor their parameters
 class ParameterGMMComponents():
 	def __init__(self, components=[]):
 		self.components = components
@@ -78,6 +80,9 @@ class ParameterGMMComponents():
 	def append(self, component):
 		self.components.append(component)
 
+
+	# normalize applies normalization procedures over all
+	# component parameters
 	def normalize(self):
 		# normalize weights (should sum up to 1.0) by applying softmax
 		weights = [component.weight for component in self.components]
@@ -112,6 +117,8 @@ class ParameterGMMComponents():
 				self.components[i].cov[x][y] = target_covariance
 				self.components[i].cov[y][x] = target_covariance
 
+# MultivariateNormal contains helper methods useful when working with multivariate
+# normal distributions
 class MultivariateNormal():
 	# pdf calculates the density of a given observation x based
 	# on a multivariate normal distribution parametrised by the mean and the covariance matrix
@@ -133,6 +140,8 @@ class MultivariateNormal():
 			
 		return math.exp(adjusted) / normalizing
 
+# GaussianMixtureModel contains helper methods useful when working or evaluating
+# GaussianMixtureModel parameters
 class GaussianMixtureModel():
 	@staticmethod
 	def _likelihood(x, components):
@@ -141,6 +150,8 @@ class GaussianMixtureModel():
 			likelihood += (component.weight * MultivariateNormal.pdf(x, component.mean, component.cov))
 		return likelihood
 
+	# loglikelihood  computes the loglikelihood of given data X, given
+	# different component parameter
 	@staticmethod
 	def loglikelihood(X, components):
 		return reduce(lambda acc, x: acc + math.log(GaussianMixtureModel._likelihood(x, components)), X, 0)
