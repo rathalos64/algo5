@@ -1,21 +1,12 @@
 #!/usr/bin/env
 
-# TODO: 
-# * uniform vs gaussian mixture model
-#	given as paramters
-#
-# * parameter per json file for uniform and gaussian mixture model
-#
-# * for every run with given k, plot result of data with clusters into file
-#
-# * 3D-dimensional plotting
-
 import argparse
 import os
 import shutil
 
 import numpy as np
 from matplotlib import pyplot as plt
+from sklearn.datasets import make_blobs
 
 from lib.kmeans import Kmeans
 
@@ -70,7 +61,14 @@ def main():
 			shutil.rmtree(path)
 		os.makedirs(path, exist_ok=False)
 
-	data = np.random.uniform(low=app.min_size, high=app.max_size, size=(app.N,app.D))
+	data, _ = make_blobs(
+		n_samples=app.N, 
+		n_features=app.D, 
+		cluster_std=5.0, 
+		center_box=(-10.0, 10.0), 
+		centers=10
+	)
+
 	kmeans = Kmeans(data, 0, app.D, "euclidian", args.max_iter)
 
 	measures = {
@@ -168,17 +166,6 @@ def main():
 			plt.ylabel(measure["ylabel"])
 
 			plt.savefig(f"{path}/{key.lower()}.png", bbox_inches="tight")
-
-	# fig1 = plt.figure()
-	# ax1 = fig1.add_subplot(111)
-	# for cluster in kmeans.clusters:
-	# 	if len(cluster.observations) == 0:
-	# 		continue
-
-	# 	observations = np.array(cluster.observations)
-		
-	# 	ax1.scatter(observations.T[0], observations.T[1], s=50.0, marker="o", label=cluster.id)
-	# 	ax1.scatter(cluster.mean[0], cluster.mean[1], s=25.0, marker="x", c="black")
 
 if __name__ == "__main__":
 	main()

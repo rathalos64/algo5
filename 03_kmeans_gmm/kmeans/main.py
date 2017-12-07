@@ -2,14 +2,6 @@
 #
 # Example call:
 # $ python main.py -plot -N 100 5
-#
-# TODO: 
-# * uniform vs gaussian mixture model
-#	given as paramters
-#
-# * parameter per json file for uniform and gaussian mixture model
-#
-# * 3D-dimensional plotting
 
 import os
 import math
@@ -82,7 +74,7 @@ def main():
 
 	print("============================================================")
 	print("[i] Starting k-means algorithm")
-	print(f"# Number of samples from uniform distribution: {app.N}")
+	print(f"# Number of samples from normal distribution: {app.N}")
 	print(f"# Min size: {app.min_size}")
 	print(f"# Max size: {app.max_size}")
 	print(f"# Dimensionality of data: {app.D}")
@@ -116,6 +108,8 @@ def main():
 		print(f"# {i} Iteration")
 		clusters = res[0]
 		mqe = res[1]
+
+		print(np.array(list(map(lambda cluster: cluster.mean, clusters))))
 
 		print(f"> Average distance (MQE) {mqe}")
 		if app.D == 2 and args.plot:

@@ -1,4 +1,6 @@
 __pycache__/
 iterations/
 optimization/
+**/screenshots/*
+*.png
 .vscode/
