@@ -12,7 +12,8 @@ class PSS():
         self.pseudocount = pseudocount
 
     # build_frequency_matrix computes a position frequence matrix (PFM)
-    # out of the given sources. The sequences are based on the given alphabet.
+    # out of the given sources. The sequences are based on the given 
+    # alphabet.
     def build_frequency_matrix(self):
         frequency_matrix = {}
         for onegram in self.alphabet:
@@ -27,18 +28,17 @@ class PSS():
 
                 frequency_matrix[onegram][i] += 1
 
-        return pd.DataFrame(list(frequency_matrix.values()), dtype=int, index=self.alphabet)
+        return pd.DataFrame(list(frequency_matrix.values()), dtype=int, 
+                index=self.alphabet)
 
-    # build_probability_matrix compute a position probability matrix (PPM)
+    # build_probability_matrix computes a position probability matrix (PPM)
     # based on the given frequency matrix. Zero values are removed
     # by adding a given pseudocount prevent zero-frequency problems.
     def build_probability_matrix(self, pfm):
         probability_matrix = round(pfm / len(self.sources), 2)
-        probability_matrix = probability_matrix.clip(self.pseudocount)
-        return probability_matrix
+        return probability_matrix.clip(self.pseudocount)
 
-    # build_weight_matrix construct the position weight matrix (PWM)
-    # based on the given probability matrix.
+    # build_weight_matrix constructs the position weight matrix (PWM)
     def build_weight_matrix(self, ppm):
         return np.log(ppm)
 

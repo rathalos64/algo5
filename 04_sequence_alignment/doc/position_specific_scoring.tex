@@ -1,24 +1,20 @@
 \section{Position Specific Scoring}
-\subsection*{Implementieren Sie in einer Programmiersprache Ihrer Wahl ein Framework für positionsspezifisches Scoring.}
-
+\subsection*{Implementieren Sie in einer Programmiersprache Ihrer Wahl ein Framework für positionsspezifisches Scoring}
 % Diese Aufgabe wurde in Google Programmiersprache Go umgesetzt, da diese neben intuitiverer Syntax als
 % andere Programmiersprachen auf Typsicherheit setzt. Das git repository für
 % die Aufgabe findet sich unter github.com/rathalos64/algo5.
 
 % Der geschätzte Arbeitsaufwand beträgt ~12h.
 
-% \bigskip\noindent
-% Die Struktur der Abgabe besteht aus den folgenden Files.
-% \newline
-% \dirtree{%
-% 	.1 /root .
-% 	.2 main.go .
-% 	.2 hmm.go .
-% 	.2 sequence.go .
-% 	.2 forward.go .
-% 	.2 structs.go .
-% 	.2 utils.go .
-% }
+\bigskip\noindent
+Die Struktur der Abgabe besteht aus den folgenden Files.
+\newline
+\dirtree{%
+	.1 /root .
+	.2 main.py .
+	.2 pss.py .
+	.2 pss\_sequence\_logo.py .
+}
 
 % \bigskip
 % Kurz zur Erklärung der einzelnen Files.
@@ -69,28 +65,119 @@
 % das Programm sofort das Ergebnis auf das Terminal. Es wird zu jeder Sequenz alle Wahrscheinlichkeiten (Likelihood \& Loglikelihood) 
 % der jeweiligen Modelle sowie das wahrscheinlichste (likeliest) Modell ausgegeben [Abbildung 1].
 
-% \pagebreak
-% \begin{wrapfigure}{i}{0.5\textwidth}
-% 	\includegraphics[scale=0.7]{../screenshots/result.png}	
-% 	\centering
-% 	\captionsetup{}
-% 	\caption{Ein Ausschnitt des Terminals. Zu jeder Sequenz ermittelt das Programm
-% 	das Modell, welches die Sequenz am Wahrscheinlichsten erzeugt haben könnte.}
-% \end{wrapfigure}
+\bigskip\noindent
+Spicy jalapeno bacon ipsum dolor amet brisket burgdoggen turducken ground round turkey landjaeger salami chicken tenderloin bacon. Ground round alcatra pork belly kevin, beef chicken spare ribs salami short ribs shankle beef ribs. Tail landjaeger alcatra doner tenderloin, jowl meatball jerky shankle brisket andouille beef cupim spare ribs. Jerky kevin shank flank doner kielbasa boudin alcatra hamburger cow pastrami. Filet mignon beef capicola picanha short loin ribeye meatball corned beef shankle chuck chicken buffalo.
 
-% \pagebreak
-% \newgeometry{top=3.04cm, bottom=3.54cm, left=2.04cm, right=2.04cm}
-% \lstset{
-% 	stringstyle=\color{Red}\ttfamily,
-% 	commentstyle=\color{Green}\ttfamily,
-% 	numbers=left
-% }
+\begin{figure}[h]
+	\begin{center}
+		\includegraphics[scale=0.5]{../pss/pss_ppm.png}	
+	\end{center}
+	\caption{Die Position Probability Matrix (PPM) als Sequenzlogo geplottet. Man sieht den Anteil an C,G,T,A basierend auf der
+	Größe des Buchstaben.}
+\end{figure}
+
+\bigskip\noindent
+Landjaeger ribeye fatback, short ribs pork belly short loin doner. Venison shankle swine pork chop tri-tip. Landjaeger kielbasa ball tip t-bone, shoulder jowl tongue hamburger sausage. Sirloin t-bone cow bacon burgdoggen biltong ribeye filet mignon. Tongue swine cow jerky, venison ground round buffalo chuck bacon turducken leberkas ribeye meatball ham hock strip steak. Ham chicken pig shoulder andouille.
+
+\newgeometry{top=3.04cm, bottom=3.54cm, left=2.04cm, right=2.04cm}
+\captionsetup[lstlisting]{format=hang, margin=5pt}
+\lstset{
+	basicstyle=\color{Black}\ttfamily\normalsize,
+	stringstyle=\color{Black}\ttfamily,
+	numbers=none,
+	captionpos=b,
+	breaklines=true
+}
+\begin{lstlisting}[caption=Der Konsolenoutput des PSS Programms. Als Zielsequenzen zum Berechnen eines Scores wurde dasselbe File verwendet\, wie zum Einlesen des alignierten Sequenzen.]
+====================================================================
+Position Specific Scoring (PSS)
+	by Alen Kocaj
+
+[i] reading source alignments out of 'testing/source'
+[i] reading target sequences out of 'testing/target'
+====================================================================
+[PPM] Position Probability Matrix
+	 0    1    2             3             4    5    6    7    8
+A  0.3  0.6  0.1  1.000000e-10  1.000000e-10  0.6  0.7  0.2  0.1
+C  0.2  0.2  0.1  1.000000e-10  1.000000e-10  0.2  0.1  0.1  0.2
+G  0.1  0.1  0.7  1.000000e+00  1.000000e-10  0.1  0.1  0.5  0.1
+T  0.4  0.1  0.1  1.000000e-10  1.000000e+00  0.1  0.1  0.2  0.6
+
+[i] plot sequence logo of PPM
+[i] figure saved at 'pss_ppm.png'
+====================================================================
+[PPM] Probability Weight Matrix
+		  0         1         2          3          4         5         6  \
+A -1.203973 -0.510826 -2.302585 -23.025851 -23.025851 -0.510826 -0.356675   
+C -1.609438 -1.609438 -2.302585 -23.025851 -23.025851 -1.609438 -2.302585   
+G -2.302585 -2.302585 -0.356675   0.000000 -23.025851 -2.302585 -2.302585   
+T -0.916291 -2.302585 -2.302585 -23.025851   0.000000 -2.302585 -2.302585   
+
+		  7         8  
+A -1.609438 -2.302585  
+C -2.302585 -1.609438  
+G -0.693147 -2.302585  
+T -1.609438 -0.510826  
+====================================================================
+[i] scoring targets
+
+# [0th target] #####
+> Sequence: GAGGTAAAC
+> Log Score by PSS: -7.25646205327
+
+# [1th target] #####
+> Sequence: TCCGTAAGT
+> Log Score by PSS: -6.89978710933
+
+# [2th target] #####
+> Sequence: CAGGTTGGA
+> Log Score by PSS: -10.0778409397
+
+# [3th target] #####
+> Sequence: ACAGTCAGT
+> Log Score by PSS: -8.28608147045
+
+# [4th target] #####
+> Sequence: TAGGTCATT
+> Log Score by PSS: -5.87016769215
+
+# [5th target] #####
+> Sequence: TAGGTACTG
+> Log Score by PSS: -8.50922502177
+
+# [6th target] #####
+> Sequence: ATGGTAACT
+> Log Score by PSS: -7.54414412572
+
+# [7th target] #####
+> Sequence: CAGGTATAC
+> Log Score by PSS: -8.50922502177
+
+# [8th target] #####
+> Sequence: TGTGTGAGT
+> Log Score by PSS: -9.38469375912
+
+# [9th target] #####
+> Sequence: AAGGTAAGT
+> Log Score by PSS: -4.14294674406
+
+====================================================================
+[i] thank you and goodnight
+=
+\end{lstlisting}
+
 \pagebreak
+\newgeometry{top=3.04cm, bottom=3.54cm, left=2.04cm, right=2.04cm}
+\lstset{
+	stringstyle=\color{Red}\ttfamily,
+	commentstyle=\color{Green}\ttfamily,
+	numbers=left
+}
 \lstinputlisting[language=Python, caption={main.py}]{../pss/main.py}
 
 \pagebreak
-\lstinputlisting[language=Python, caption={pss.py}]{../pss/pss.go}
+\lstinputlisting[language=Python, caption={pss.py}]{../pss/pss.py}
 
 \pagebreak
-\lstinputlisting[language=Python, caption={pss_sequence.py}]{../pss/pss_sequence.py}
+\lstinputlisting[language=Python, caption={pss\_sequence\_logo.py}]{../pss/pss_sequence_logo.py}
 
