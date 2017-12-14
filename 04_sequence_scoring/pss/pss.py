@@ -3,6 +3,7 @@
 import numpy as np
 import pandas as pd
 
+# PSS describes methods for calculating the position specific scoring
 class PSS():
     def __init__(self, sources, alphabet, weights, avg_sequence_length, pseudocount):
         self.sources = sources

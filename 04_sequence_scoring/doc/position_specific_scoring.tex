@@ -1,10 +1,15 @@
 \section{Position Specific Scoring}
 \subsection*{Implementieren Sie in einer Programmiersprache Ihrer Wahl ein Framework für positionsspezifisches Scoring}
-% Diese Aufgabe wurde in Google Programmiersprache Go umgesetzt, da diese neben intuitiverer Syntax als
-% andere Programmiersprachen auf Typsicherheit setzt. Das git repository für
-% die Aufgabe findet sich unter github.com/rathalos64/algo5.
 
-% Der geschätzte Arbeitsaufwand beträgt ~12h.
+\begin{itemize}
+	\item Programmiersprache: Python
+	\item Arbeitsaufwand: 5h
+	\item Git Repository: https://github.com/rathalos64/algo5
+\end{itemize}
+Diese Aufgabe wurde in Python umgesetzt.
+Das git repository für die Aufgabe findet sich unter github.com/rathalos64/algo5.
+
+Der geschätzte Arbeitsaufwand beträgt ~12h.
 
 \bigskip\noindent
 Die Struktur der Abgabe besteht aus den folgenden Files.
@@ -13,22 +18,19 @@ Die Struktur der Abgabe besteht aus den folgenden Files.
 	.1 /root .
 	.2 main.py .
 	.2 pss.py .
-	.2 pss\_sequence\_logo.py .
+	.2 alphabet.py .
 }
 
-% \bigskip
-% Kurz zur Erklärung der einzelnen Files.
-% \begin{itemize}
-% 	\item \textbf{main.go} präsentiert das Hauptprogramm, welches die Models und Sequenzen einliest, validiert und
-% 	anschließend evaluiert.
-% 	\item \textbf{hmm.go} definiert die Struktur eines Hidden Markov Models mitsamt Contraints und Mappingnamen für 
-% 	Se-/Deserialisierung.
-% 	\item \textbf{sequence.go} definiert die Struktur einer Sequenz von Beobachtungen mitsamt Contraints und Mappingnamen für 
-% 	Se-/Deserialisierung.
-% 	\item \textbf{forward.go} implementiert den Forward-Algorithmus über die Funktion \textit{Evaluate()}.
-% 	\item \textbf{structs.go} definiert Hilfstypen (u.a für die Validierung).
-% 	\item \textbf{utils.go} definiert Hilfsfunktionen
-% \end{itemize}
+\bigskip
+Kurz zur Erklärung der einzelnen Files.
+\begin{itemize}
+	\item \textbf{main.py} präsentiert das Hauptprogramm, welches die Sequenzen einliest, die diversen Matrizen -
+	PFM (Position Frequency Matrix), PPM (Position Probability Matrix) und PWM (Position Weight Matrix) - berechnet und
+	basierend auf den Targetsequenzen für jede einzelne Sequenz den PS Score berechnet.
+	\item \textbf{pss.py} definiert die einzelnen Berechnungssteps des PSS Algorithmus und stellt passende Methoden bereit.
+	\item \textbf{alphabet.py} stellt statische Definitionen für die diverse Sequenzalphabete bereit. Aktuell ist nur das 
+	Alphabet für Nukleotide definiert.
+\end{itemize}
 
 % \noindent
 % Das Programm arbeitet mit Inputfiles, welche zum Definieren von HMMs und Sequenzen verwendet werden.
@@ -179,5 +181,5 @@ T -1.609438 -0.510826
 \lstinputlisting[language=Python, caption={pss.py}]{../pss/pss.py}
 
 \pagebreak
-\lstinputlisting[language=Python, caption={pss\_sequence\_logo.py}]{../pss/pss_sequence_logo.py}
+\lstinputlisting[language=Python, caption={alphabet.py}]{../pss/alphabet.py}
 
